@@ -106,6 +106,12 @@ particleConcentration = JOBFILE.Parameters.Images.ParticleConcentration;
 % Particle diameter (pixels)
 particleDiameter = JOBFILE.Parameters.Images.ParticleDiameter; 
 
+% Average particle diameter
+particle_diameter_mean = JOBFILE.Parameters.Images.ParticleDiameter.Mean;
+
+% Standard deviation of particle diameter
+particle_diameter_standard_deviation = JOBFILE.Parameters.Images.ParticleDiameter.StandardDeviation;
+
 % Height and width of images
 imageHeight = JOBFILE.Parameters.Images.Height;
 imageWidth = JOBFILE.Parameters.Images.Width;
@@ -182,7 +188,7 @@ for n = 1 : numberOfSets
     VortexParameters.VortexType = 'lamb';
 
     % Gaussian parameter to control the width of intensity distribution 
-    intensityStd = 0.25; 
+    gaussian_light_sheet_standard_deviation = 0.25; 
 
     % Randomly generate the coordinates of particles
     % Generate horizontal locations of particles in first image (column vector)
@@ -198,11 +204,11 @@ for n = 1 : numberOfSets
     bottomParticleLimit = 1.5 * imageHeight;
 
     % Calulate the number of particles to generate
-    nParticles = round(particleConcentration * (bottomParticleLimit - topParticleLimit) * (rightParticleLimit - leftParticleLimit));
+    number_of_particles = round(particleConcentration * (bottomParticleLimit - topParticleLimit) * (rightParticleLimit - leftParticleLimit));
 
     % Randomly generate the initial positions of particles over the particle domain.
-    X0 = leftParticleLimit + (rightParticleLimit - leftParticleLimit) * rand(nParticles, 1);
-    Y0 = topParticleLimit + (bottomParticleLimit - topParticleLimit) * rand(nParticles, 1);
+    X0 = leftParticleLimit + (rightParticleLimit - leftParticleLimit) * rand(number_of_particles, 1);
+    Y0 = topParticleLimit + (bottomParticleLimit - topParticleLimit) * rand(number_of_particles, 1);
 
     % Generate lamb vortex particle positions
     disp('Integrating particle positions...');
@@ -212,10 +218,10 @@ for n = 1 : numberOfSets
     save(fullfile(parametersDir, 'parameters.mat'), 'JOBFILE', 'X', 'Y', 'T', 'imageHeight', 'imageWidth', 'particleDiameter', 'particleConcentration', 'VortexParameters');
 
     % Uniformly distributed random numbers  from -0.5 to 0.5 corresponding to centers of the Gaussian function
-    particleCenters = rand( nParticles, 1 ) - 0.5; 
+    particleCenters = rand( number_of_particles, 1 ) - 0.5; 
 
     % Gaussian Function that expresses the intensity distribution of the particle image on the "sensor"
-    particleMaxIntensities = (exp( -particleCenters .^ 2 / (2 * intensityStd ^ 2 ) ))'; 
+    particleMaxIntensities = (exp( -particleCenters .^ 2 / (2 * gaussian_light_sheet_standard_deviation ^ 2 ) )); 
 
     % Inform the user.
     disp('Generating particle images...')
@@ -238,29 +244,33 @@ for n = 1 : numberOfSets
     % noise background image.
     noiseBackgroundImage = noiseBackground .* maxVal .* ones([imageHeight, imageWidth]) .* beamImage;
 
+    % Generate particle diameters
+    % Generate the random particle diameters
+    particle_diameters = abs(particle_diameter_standard_deviation * randn(number_of_particles, 1) + particle_diameter_mean);
+    
     % Generate the images for the subsequent time steps (parallel processing)
     if nProcessors > 1
 
         % Generate the images.
         parfor k = 1 : imagesPerSet
 
-        % Inform the user
+            % Inform the user
             fprintf(1, ['Generating particle image ' num2str(k) ' of ' num2str(imagesPerSet) '\n']);
 
-                % Generate the subsequent images
-                if run_compiled
-                    ImageOut = generateParticleImage_mex(imageHeight, imageWidth, (X(k, :))', (Y(k, :))', particleDiameter, particleMaxIntensities);
-                else
-                    ImageOut = generateParticleImage(imageHeight, imageWidth, X(k, :), Y(k, :), particleDiameter, particleMaxIntensities);
-                end
+            % Generate the subsequent images
+            if run_compiled
+                ImageOut = generateParticleImage_mex(imageHeight, imageWidth, (X(k, :))', (Y(k, :))', particle_diameters, particleMaxIntensities);
+            else
+                ImageOut = generateParticleImage(imageHeight, imageWidth, X(k, :), Y(k, :), particle_diameters, particleMaxIntensities);
+            end
 
-                % Add noise if requested. Then save the image.
-                if simulateNoise
-                    imwrite(cast((ImageOut ./ max(ImageOut(:)) .* double(intmax(imageClass)) .* beamImage) + (noiseMean * maxVal + noiseStd / 2.8 * maxVal * randn([imageHeight, imageWidth])) + noiseBackgroundImage, imageClass), fullfile(imageSaveDir, [imageBaseName num2str(k, numberFormat) '.tiff']), 'compression', 'none');
-                else
-                % Save the image
-                    imwrite(cast(ImageOut ./ max(ImageOut(:)) .* double(intmax(imageClass)) , imageClass ), fullfile(imageSaveDir, [imageBaseName num2str(k, numberFormat) '.tiff']), 'compression', 'none');
-                end
+            % Add noise if requested. Then save the image.
+            if simulateNoise
+                imwrite(cast((ImageOut ./ max(ImageOut(:)) .* double(intmax(imageClass)) .* beamImage) + (noiseMean * maxVal + noiseStd / 2.8 * maxVal * randn([imageHeight, imageWidth])) + noiseBackgroundImage, imageClass), fullfile(imageSaveDir, [imageBaseName num2str(k, numberFormat) '.tiff']), 'compression', 'none');
+            else
+            % Save the image
+                imwrite(cast(ImageOut ./ max(ImageOut(:)) .* double(intmax(imageClass)) , imageClass ), fullfile(imageSaveDir, [imageBaseName num2str(k, numberFormat) '.tiff']), 'compression', 'none');
+            end
         end
 
     else
@@ -272,9 +282,9 @@ for n = 1 : numberOfSets
 
             % Generate the subsequent images
             if run_compiled
-                ImageOut = generateParticleImage_mex(imageHeight, imageWidth, (X(k, :))', (Y(k, :))', particleDiameter, particleMaxIntensities);
+                ImageOut = generateParticleImage_mex(imageHeight, imageWidth, (X(k, :))', (Y(k, :))', particle_diameters, particleMaxIntensities);
             else
-                ImageOut = generateParticleImage(imageHeight, imageWidth, X(k, :), Y(k, :), particleDiameter, particleMaxIntensities);
+                ImageOut = generateParticleImage(imageHeight, imageWidth, X(k, :), Y(k, :), particle_diameters, particleMaxIntensities);
             end
 
             % Add noise if requested. Then save the image.

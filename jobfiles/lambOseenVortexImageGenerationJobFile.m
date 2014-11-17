@@ -30,21 +30,22 @@ JOBFILE.JobOptions.NumberOfDigits = 6;
 JOBFILE.JobOptions.DataRepositoryPathIsAbsolute = 1;
 
 % Flag specifying whether to run compiled codes.
-JOBFILE.JobOptions.RunCompiled = 0;
+JOBFILE.JobOptions.RunCompiled = 1;
 
 % Image naming information.
 % Images will be saved in the following folder:
 % fullfile(ProjectRepository, 'analysis', 'data', ImageType, SetType, CaseName)
 % JOBFILE.ProjectRepository = 'FMISPOMF';
-JOBFILE.ProjectRepository = '~/Desktop/test_vortex';
+JOBFILE.ProjectRepository = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/FMC/';
 JOBFILE.ImageType = 'synthetic';
 JOBFILE.SetType = 'vortex';
-JOBFILE.CaseName = 'lambvortex_2014-06-12';
+JOBFILE.CaseName = 'lambvortex_2014-11-17';
 
 JOBFILE.Parameters.Images.Height = 1024; % Image height (pixels)
 JOBFILE.Parameters.Images.Width = 1024; % Image width (pixels)
-JOBFILE.Parameters.Images.ParticleConcentration = 0.025; % Particle concentration (particles per pixel)
-JOBFILE.Parameters.Images.ParticleDiameter = sqrt(8); % Average particle diameter (pixels)
+JOBFILE.Parameters.Images.ParticleConcentration = 0.10; % Particle concentration (particles per pixel)
+JOBFILE.Parameters.Images.ParticleDiameter.Mean = sqrt(8); % Average particle diameter (pixels)
+JOBFILE.Parameters.Images.ParticleDiameter.StandardDeviation = 0; % Standard deviation of particle diameter (pixels)
 JOBFILE.Parameters.Images.Extension = '.tif';
 JOBFILE.Parameters.ImageClass = 'uint16';
 
@@ -54,11 +55,11 @@ JOBFILE.Parameters.ImageClass = 'uint16';
 JOBFILE.Parameters.Sets.Start = 1;
 
 % Number of the last set of images to generate
-JOBFILE.Parameters.Sets.End = 1;
+JOBFILE.Parameters.Sets.End = 20;
 
 % Number of images to generate per set. Larger numbers of images per set result in 
 % more time through which the particle positions are advected. 
-JOBFILE.Parameters.Sets.ImagesPerSet = 4;
+JOBFILE.Parameters.Sets.ImagesPerSet = 20;
 
 % Diameter of the vortex ring (i.e. spacing between cores) (pixels)
 JOBFILE.Parameters.Vortex.VortexRadius = 200;
