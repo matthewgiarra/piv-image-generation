@@ -92,8 +92,9 @@ for n = 1 : nJobs
     concentration = JobFile.Parameters.ParticleConcentration;
 
     % Particle diameter (pixels)
-    particlediameter = JobFile.Parameters.ParticleDiameter; 
-
+    particle_diameter_std  = JobFile.Parameters.ParticleDiameter.Std;
+    particle_diameter_mean = JobFile.Parameters.ParticleDiameter.Mean;
+    
     % Noise parameters
     noiseMean = JobFile.Parameters.Noise.Mean;
     noiseStd  = JobFile.Parameters.Noise.Std;
@@ -148,6 +149,11 @@ for n = 1 : nJobs
     % Specify explicitly the bounds of the particle concentration parameter
     Conci = concentration(1);
     Concf = concentration(2);
+    
+    % Specify explicitly the bounds of the particle diameter standard
+    % deviation 
+    particle_diameter_std_i = particle_diameter_std(1);
+    particle_diameter_std_f = particle_diameter_std(2);
 
     % Specify the Image type
     % mc means monte carlo analysis
@@ -186,8 +192,7 @@ for n = 1 : nJobs
 
         % Particle diameters
         % Change this to a variable size
-        Parameters.ParticleDiameter = particlediameter * ones(imagesPerSet, 1);
-
+        
         % Linear distribution image sets.
         if isLinProg
             % Make linear distribution of transformation parameters.
@@ -197,7 +202,8 @@ for n = 1 : nJobs
             Parameters.ShearX = (linspace(ShearXi, ShearXf, imagesPerSet))';
             Parameters.ShearY = (linspace(ShearYi, ShearYf, imagesPerSet))';
             Parameters.TranslationX = (linspace(TXi, TXf, imagesPerSet))';
-            Parameters.TranslationY = (linspace(TYi, TYf, imagesPerSet))';        
+            Parameters.TranslationY = (linspace(TYi, TYf, imagesPerSet))';  
+            Parameters.ParticleDiameterStd = (linspace(particle_diameter_std_i, particle_diameter_std_f, imagesPerSet))';
 
         % Monte carlo image sets
         elseif isMC
@@ -210,6 +216,7 @@ for n = 1 : nJobs
             Parameters.ShearY = zeros(imagesPerSet, 1);
             Parameters.TranslationX = zeros(imagesPerSet, 1);
             Parameters.TranslationY = zeros(imagesPerSet, 1);
+            Parameters.ParticleDiameterStd = zeros(imagesPerSet, 1);
             Parameters.Tforms = zeros(3, 3, imagesPerSet);
 
             % Populate the transformation parameters
@@ -223,7 +230,7 @@ for n = 1 : nJobs
                 Parameters.ShearY(k) = ShearYi + (ShearYf - ShearYi) * rand; % Random vertical shearing;
                 Parameters.TranslationX(k) = TXi + (TXf - TXi) * rand; % Random horizontal displacement;
                 Parameters.TranslationY(k) =  TYi + (TYf - TYi) * rand; % Random vertical displacement;
-
+                Parameters.ParticleDiameterStd(k) = particle_diameter_std_i + (particle_diameter_std_f - particle_diameter_std_i) * rand;
             end
         end
 
@@ -259,12 +266,20 @@ for n = 1 : nJobs
         Parameters.ConcentrationRange = concentration;
         Parameters.RotationRangeType = rotationRangeType;
         Parameters.RotationAngleUnits = rotationAngleUnits;
-
+        Parameters.ParticleDiameterStdRange = particle_diameter_std;
+        Parameters.ParticleDiameterMean = particle_diameter_mean;
+        
         % Save parameters to their own variables to cut down on data transfer with the parallel for loop
         concentrations = Parameters.Concentration;
+        particle_diameter_std_list = Parameters.ParticleDiameterStd;
         tforms = Parameters.Tforms;
-        particleDiameters = Parameters.ParticleDiameter;
-
+        
+        % Don't specify particle diameters here.
+        % Instead draw them from a normal distribution
+        % whose standard deviation is drawn from a uniform
+        % distribution of possible values.
+%         particleDiameters = Parameters.ParticleDiameter;
+        
         % Preallocate memory for the image matrices.
         imageMatrix1 = zeros(regionHeight, regionWidth, imagesPerSet, 'uint16');
         imageMatrix2 = zeros(regionHeight, regionWidth, imagesPerSet, 'uint16');
@@ -289,10 +304,11 @@ for n = 1 : nJobs
                 % Generate the image pairs. 
                 % Run compiled image generation code
                 if run_compiled
-                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particleDiameters(k), concentrations(k), tforms(:, :, k));
+                % Run compiled image generation code
+                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 else
-                 % Run scripted image generation code
-                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particleDiameters(k), concentrations(k), tforms(:, :, k));
+                 % Run image generation code
+                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 end
 
                 % Save images to data matrix.;
@@ -315,10 +331,10 @@ for n = 1 : nJobs
                 % Generate the image pairs. 
                 % Run compiled image generation code
                 if run_compiled
-                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particleDiameters(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 else
-                 % Run scripted image generation code
-                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particleDiameters(k), concentrations(k), tforms(:, :, k));
+                 % Run image generation code
+                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 end
 
                 % Save images to data matrix.;
