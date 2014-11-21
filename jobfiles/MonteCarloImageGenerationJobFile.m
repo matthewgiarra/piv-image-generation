@@ -12,15 +12,14 @@ DefaultJob.JobOptions.RunCompiled = 1;
 
 DefaultJob.ImageType = 'synthetic';
 DefaultJob.SetType = 'mc';
-DefaultJob.CaseName = '2014-11-11_translation_only';
-DefaultJob.ProjectRepository = '~/Dropbox/School/VT/Research/SPC';
-% DefaultJob.ProjectRepository = '~/Desktop/testImages';
+DefaultJob.CaseName = '2014-11-21_translation_only';
+DefaultJob.ProjectRepository = '~/Documents/School/VT/Research/Aether/FMC';
 
 DefaultJob.Parameters.RegionHeight = regionHeight;
 DefaultJob.Parameters.RegionWidth = regionWidth;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 10000;
+DefaultJob.Parameters.Sets.ImagesPerSet = 10;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.TX =  1 * regionWidth / 8  * [-1 1];
@@ -51,8 +50,8 @@ DefaultJob.Parameters.Noise.Std = 0.05;
 SegmentItem = DefaultJob;
 SegmentItem.SetType = 'mc';
 SegmentItem.CaseName = 'SPCtest_2014-11-15_translation_only_with_noise';
-SegmentItem.Parameters.RegionHeight = 64;
-SegmentItem.Parameters.RegionWidth = 64;
+SegmentItem.Parameters.RegionHeight = 512;
+SegmentItem.Parameters.RegionWidth = 512;
 SegmentItem.Parameters.TX =  8 * [-1 1];
 SegmentItem.Parameters.TY =  8 * [-1 1];
 SegmentItem.Parameters.Rotation = 0 * [-1 1];

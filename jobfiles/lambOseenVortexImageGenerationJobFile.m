@@ -43,7 +43,7 @@ JOBFILE.CaseName = 'lambvortex_2014-11-17';
 
 JOBFILE.Parameters.Images.Height = 1024; % Image height (pixels)
 JOBFILE.Parameters.Images.Width = 1024; % Image width (pixels)
-JOBFILE.Parameters.Images.ParticleConcentration = 0.10; % Particle concentration (particles per pixel)
+JOBFILE.Parameters.Images.ParticleConcentration = 0.025; % Particle concentration (particles per pixel)
 JOBFILE.Parameters.Images.ParticleDiameter.Mean = sqrt(8); % Average particle diameter (pixels)
 JOBFILE.Parameters.Images.ParticleDiameter.StandardDeviation = 0; % Standard deviation of particle diameter (pixels)
 JOBFILE.Parameters.Images.Extension = '.tif';
