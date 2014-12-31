@@ -229,12 +229,27 @@ for n = 1 : numberOfSets
     % Beam profile standard deviation, so that FWHM width
     % is equal to half the image width.
     if simulateBeam
+        % This is the standard deviation of the in-plane Gaussian 
+        % profile of the beam.
         beamStd = imageWidth / (2 * sqrt(2 * log(2)));
+        
+        % This is the column location of the maxiumum intensity 
+        % of the beam.
         beamCenter = imageWidth / 2;
+        
+        % This creates an array of column locations.
         imageGridX = 1 : imageWidth;
+        
+        % This calculates the Gaussian profile of the beam intensity
+        % as a function of the column position in the image.
         beamProfile = exp(-(imageGridX - beamCenter).^2 / (2 * beamStd.^2));
+        
+        % This replicates the beam profile in the row direction. 
+        % Currently the beam propogation direction is hard-coded to be
+        % in the row direction (i.e., top to bottom). 
         beamImage = repmat(beamProfile, [imageHeight, 1]);
     else
+        % This sets the beam intensity to be uniform within the image.
         beamImage = ones(imageHeight, imageWidth);
     end
 
