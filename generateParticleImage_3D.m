@@ -30,12 +30,15 @@ imagePlaceholder = zeros(HEIGHT, WIDTH, DEPTH);
 % within the image domain. 
 particlesToRender = X <= WIDTH & X >= 1 & Y <= HEIGHT & Y >= 1 & Z <= DEPTH & Z >= 1;
 
-% Extract the coordinates and brightness of the particles to be rendered.
+% Extract the coordinates of the particles to be rendered.
 xRender = X(particlesToRender);
 yRender = Y(particlesToRender);
 zRender = Z(particlesToRender);
 
+% Extract the max intensities of the particles to be rendered.
 particleIntensities = PARTICLEMAXINTENSITIES(particlesToRender);
+
+% Extract the diameters of the particles to be rendered.
 particleDiameters = PARTICLEDIAMETERS(particlesToRender);
 
 % Determine the number of particles to render

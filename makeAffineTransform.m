@@ -17,9 +17,7 @@ function [TRANSFORM, SCALING, ROTATION, SHEARING, TRANSLATION] = makeAffineTrans
 %       quadrilateral (1 to generate plot; 0 to suppress plot).
 % 
 % OUTPUTS
-%   TRANSFORM = 3 x 3 matrix specifying the total affine transformation.
-%   This matrix is compatible with the Matlab function IMTRANSFORM (i.e.,
-%       the translation elements are in the third row rather than in the third column). 
+%   TRANSFORM = 3 x 3 homogeneous matrix specifying the total affine transformation.
 %   SCALING = 3 x 3 matrix specifying the pure scaling transformation.
 %   ROTATION = 3 x 3 matrix specifying the pure rotation transformation. 
 %   SHEARING = 3 x 3 matrix specifying the pure shearing transformation.

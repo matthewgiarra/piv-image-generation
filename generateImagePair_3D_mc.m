@@ -1,6 +1,5 @@
 %#codegen
-% function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLEDIAMETER, PARTICLECONCENTRATION, TRANSFORMATIONMATRIX)
-function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, TRANSFORMATIONMATRIX)
+function  [IMAGE1, IMAGE2] = generateImagePair_3D_mc(IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_DEPTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, TRANSFORMATIONMATRIX)
 % GENERATEIMAGES(imHeight, imWidth, TRANSFORMATIONMATRIX, saveFlag, saveDirectory)
 % Generates a series of synthetic particle images that have been transformed by a
 % specified series of transformation matrices. 
@@ -45,55 +44,51 @@ function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTI
 % BEGIN FUNCTION %
 % % % % % % % % % 
 
-% Double the height and width of the images so that rotations don't cause
+% Double the height, width, and depth of the images so that rotations don't cause
 % cropping.
-augmentedWidth  = 2 * IMAGEWIDTH; % Double the width so that rotations don't cause cropping
-augmentedHeight = 2 * IMAGEHEIGHT; % Double the height so that rotations don't cause cropping
+augmentedWidth  = 2 * IMAGE_WIDTH;
+augmentedHeight = 2 * IMAGE_HEIGHT;
+augmentedDepth =  2 * IMAGE_DEPTH; 
 
 % Calculate the coordinate of the geometric center of the image.
-xc = (augmentedWidth + 1 ) / 2; % X center of image
-yc = (augmentedHeight + 1 ) /2; % Y center of image
-
-% Gaussian parameter to control the width of the
-% simulated light-sheet intensity distribution in the depth direction
-intensityStd = 0.25; % / (PARTICLEDIAMETER^2 / 8); 
+xc = (augmentedWidth + 1 )  / 2; % X center of image
+yc = (augmentedHeight + 1 ) / 2; % Y center of image
+zc = (augmentedDepth + 1 )  / 2; % Y center of image
 
 % Number of particles to generate
-nParticles = round(PARTICLECONCENTRATION * (augmentedHeight + 2 * PARTICLE_DIAMETER_MEAN) * (augmentedWidth + 2 * PARTICLE_DIAMETER_MEAN));
-
-% Uniformly distributed random numbers  from -0.5 to 0.5 corresponding to
-% the depth-position of the particles in relation to the center of the 
-% light sheet
-particleCenters = rand( nParticles, 1 ) - 0.5; 
+nParticles = round(PARTICLECONCENTRATION * (augmentedHeight + 2 * PARTICLE_DIAMETER_MEAN) * (augmentedWidth + 2 * PARTICLE_DIAMETER_MEAN) * (augmentedDepth + 2 * PARTICLE_DIAMETER_MEAN));
 
 % Randomly generate the coordinates of particles
 % Generate horizontal locations of particles in first image (column vector)
-X1 = 1 + (augmentedWidth - 1) * rand(nParticles, 1);
-Y1 = 1 + ( augmentedHeight - 1 ) * rand( nParticles, 1);
+X1 = 1 + (augmentedWidth  - 1) * rand(nParticles, 1);
+Y1 = 1 + (augmentedHeight - 1) * rand(nParticles, 1);
+Z1 = 1 + (augmentedDepth  - 1) * rand(nParticles, 1);
 
 % Create a normal distribution of particle diameters
 particle_diameters = abs(PARTICLE_DIAMETER_STD * randn(nParticles, 1) + PARTICLE_DIAMETER_MEAN);
 
 % Gaussian Function that expresses the intensity distribution of the particle image on the "sensor"
-particleMaxIntensities = exp( -particleCenters .^ 2 / (2 * intensityStd ^ 2 ) ); 
+% This is set to 1 for now since the depth-positions of the particles are
+% known for 3D rendering.
+particleMaxIntensities = ones(nParticles, 1);
 
 % Create a placeholder to store the generated image
-image1 = generateParticleImage(augmentedHeight, augmentedWidth, X1, Y1, particle_diameters, particleMaxIntensities);
+image1 = generateParticleImage_3D(augmentedHeight, augmentedWidth, augmentedDepth, X1, Y1, Z1, particle_diameters, particleMaxIntensities);
 
 % Crop the image and flip it vertically to place it in a right-handed coordinate system.
-Image1Cropped = flipud(image1(augmentedHeight / 4 + 1 : 3 * augmentedHeight / 4, augmentedWidth / 4 + 1 : 3 * augmentedWidth / 4));
+Image1Cropped = flipud(image1(augmentedHeight / 4 + 1 : 3 * augmentedHeight / 4, augmentedWidth / 4 + 1 : 3 * augmentedWidth / 4, augmentedDepth / 4 + 1 : 3 * augmentedDepth / 4));
 
 % Make 16 bit. Save to output variable.
 IMAGE1 = uint16( (2^16 - 1) .* Image1Cropped .* 2.8^2 / PARTICLE_DIAMETER_MEAN ^2);
 
 % Transform the particle coordinates
-[Y2, X2] = transformImageCoordinates(TRANSFORMATIONMATRIX, X1, Y1, [yc xc]);
+[Y2, X2, Z2] = transformImageCoordinates_3D(TRANSFORMATIONMATRIX, X1, Y1, Z1, [yc, xc, zc]);
 
 % Generate the second image
-image2 = generateParticleImage(augmentedHeight, augmentedWidth, X2, Y2, particle_diameters, particleMaxIntensities);
+image2 = generateParticleImage_3D(augmentedHeight, augmentedWidth, augmentedDepth, X2, Y2, Z2, particle_diameters, particleMaxIntensities);
 
 % Crop the second image
-Image2Cropped =  flipud(image2(augmentedHeight / 4 + 1: 3 * augmentedHeight / 4, augmentedWidth / 4 + 1: 3 * augmentedWidth / 4));
+Image2Cropped =  flipud(image2(augmentedHeight / 4 + 1: 3 * augmentedHeight / 4, augmentedWidth / 4 + 1: 3 * augmentedWidth / 4, augmentedDepth / 4 + 1: 3 * augmentedDepth / 4));
 
 % Recast as 16-bit
 IMAGE2 = uint16( (2^16 - 1) .* Image2Cropped .*  2.8^2 ./ PARTICLE_DIAMETER_MEAN^2);

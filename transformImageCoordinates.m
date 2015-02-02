@@ -2,7 +2,7 @@
 function [YOUT, XOUT] = transformImageCoordinates(TRANSFORM, XGRID, YGRID, CENTER)
 
 % Count rows and columns in the original image 
-[nr, nc] = size(XGRID);
+[num_rows, num_cols] = size(XGRID);
 
 % Center of image
 yc = CENTER(1);
@@ -25,23 +25,8 @@ Xt = transformedPoints(1, :);
 Yt = transformedPoints(2, :);
 
 % Turn transformed X- and Y- coordinates back into matrices and shift the origin back to (1, 1)
-% x = reshape(Xt, nr, nc) + xc;
-% y = reshape(Yt, nr, nc) + yc;
-XOUT = reshape(Xt, nr, nc) + xc;
-YOUT = reshape(Yt, nr, nc) + yc;
-
-
-% % Crop the image if specified.
-% if strcmp(METHOD, 'crop')
-%     XOUT = (x(x >= min(XGRID(:)) & x <= max(XGRID(:)) & y >= min(YGRID(:)) & y <= max(YGRID(:))));
-%     YOUT = (y(x >= min(XGRID(:)) & x <= max(XGRID(:)) & y >= min(YGRID(:)) & y <= max(YGRID(:))));
-%     
-% else % Don't crop the image if cropping wasn't specified.
-%     XOUT = x;
-%     YOUT = y;
-%     
-% end
-
+XOUT = reshape(Xt, num_rows, num_cols) + xc;
+YOUT = reshape(Yt, num_rows, num_cols) + yc;
 
 end
 
