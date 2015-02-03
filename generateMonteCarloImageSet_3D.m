@@ -347,7 +347,7 @@ for n = 1 : nJobs
                     [image_01, image_02] = generateImagePair_3D_mc_mex(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 else
                  % Run image generation code
-                    [image_01, image_02] =     generateImagePair_3D_mc(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_3D_mc(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 end
 
                 % Save images to data matrix.;
@@ -373,7 +373,7 @@ for n = 1 : nJobs
                     [image_01, image_02] = generateImagePair_3D_mc_mex(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 else
                  % Run image generation code
-                    [image_01, image_02] =     generateImagePair_3D_mc(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_3D_mc(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
                 end
 
                 % Save images to data matrix.;
