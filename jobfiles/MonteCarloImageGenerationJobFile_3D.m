@@ -2,15 +2,15 @@ function JOBLIST = MonteCarloImageGenerationJobFile_3D()
 
 % Region dimensions
 regionHeight = 64;
-regionWidth = 64;
-regionDepth = 64;
+regionWidth  = 64;
+regionDepth  = 64;
 
 DefaultJob.JobOptions.NumberOfProcessors = 1;
 DefaultJob.JobOptions.NumberOfDigits = 6;
 DefaultJob.JobOptions.RotationRangeType = 'lin';
 DefaultJob.JobOptions.RotationAngleUnits = 'rad';
 DefaultJob.JobOptions.RunCompiled = 1;
-DefaultJob.JobOptions.ReSeed = 1;
+DefaultJob.JobOptions.ReSeed = 0;
 
 DefaultJob.ImageType = 'synthetic';
 DefaultJob.SetType = 'mc';
@@ -21,7 +21,7 @@ DefaultJob.Parameters.RegionHeight = regionHeight;
 DefaultJob.Parameters.RegionWidth = regionWidth;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 1;
+DefaultJob.Parameters.Sets.ImagesPerSet = 25;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.TX = 1 * regionWidth  / 8 * [-1, 1];
@@ -55,10 +55,10 @@ SegmentItem.Parameters.RegionDepth = 64;
 SegmentItem.Parameters.TX =  0 * [0 1];
 SegmentItem.Parameters.TY =  0 * [0 1];
 SegmentItem.Parameters.TZ =  0 * [1 1];
-SegmentItem.Parameters.Rotation_Z_01 = pi/30 * [0 0];
-SegmentItem.Parameters.Rotation_Y    = pi/30 * [0 0];
-SegmentItem.Parameters.Rotation_Z_02 = pi/6 * [0 0];
-SegmentItem.Parameters.Scaling = 0.99 * [1, 1];
+SegmentItem.Parameters.Rotation_Z_01 = pi/2 * [1 1];
+SegmentItem.Parameters.Rotation_Y    = pi/4 * [1 1];
+SegmentItem.Parameters.Rotation_Z_02 = pi/2 * [0 1];
+SegmentItem.Parameters.Scaling = 1 * [1, 1];
 SegmentItem.Parameters.Noise.Mean = 0.00;
 SegmentItem.Parameters.Noise.Std = 0.00;
 SegmentItem.Parameters.ParticleDiameter.Mean = sqrt(8);
