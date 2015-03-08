@@ -54,14 +54,14 @@ JOBFILE.JobOptions.RunCompiled = 1;
 % Images will be saved in the following folder:
 % fullfile(ProjectRepository, 'analysis', 'data', ImageType, SetType, CaseName)
 % JOBFILE.ProjectRepository = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/FMC/';
-JOBFILE.ProjectRepository = '~/Desktop/vortex';
+JOBFILE.ProjectRepository = '..';
 JOBFILE.ImageType = 'synthetic';
 JOBFILE.SetType = 'vortex';
-JOBFILE.CaseName = 'lamb_vortex_diffusion_large';
+JOBFILE.CaseName = 'piv_benchmark_vortex_images';
 
 % These are the height and width of the generated images in pixels
-JOBFILE.Parameters.Images.Height = 128;
-JOBFILE.Parameters.Images.Width  = 512;
+JOBFILE.Parameters.Images.Height = 1024;
+JOBFILE.Parameters.Images.Width  = 1024;
 
 % Particle concentration (particles per pixel)
 JOBFILE.Parameters.Images.ParticleConcentration = 0.025; 
@@ -94,7 +94,7 @@ JOBFILE.Parameters.Sets.End = 1;
 
 % Number of images to generate per set. Larger numbers of images per set result in 
 % more time through which the particle positions are advected. 
-JOBFILE.Parameters.Sets.ImagesPerSet = 500;
+JOBFILE.Parameters.Sets.ImagesPerSet = 1000;
 
 % Diameter of the vortex ring (i.e. spacing between cores) (pixels)
 JOBFILE.Parameters.Vortex.VortexRadius = 200;
@@ -106,7 +106,7 @@ JOBFILE.Parameters.Vortex.CoreRadius = 100;
 
 % This is the peak tangential particle displacement due to 
 % each vortex core (pixels per frame).
-JOBFILE.Parameters.Vortex.PeakVelocity = 5;
+JOBFILE.Parameters.Vortex.PeakVelocity = 3;
 
 % This is the displacement of the vortex cores in the direction 
 % perpendicular to the line connecting the two cores (pixels per frame)
@@ -129,7 +129,7 @@ JOBFILE.Parameters.Vortex.EndTime = JOBFILE.Parameters.Sets.ImagesPerSet - 1;
 
 % These lines specify the percentage of the displacement noise that
 % falls below DisplacementNoiseLevel
-JOBFILE.Parameters.Flow.DisplacementNoiseLevel = 20;
+JOBFILE.Parameters.Flow.DisplacementNoiseLevel = 0;
 JOBFILE.Parameters.Flow.DisplacementNoiseConfidenceInterval = 0.50;
 
 % These lines specify the amount of Gaussian white noise 
