@@ -1,5 +1,5 @@
-function generateMonteCarloImageSet(JOBLIST)
-% generateMonteCarloImageSet(SIZE, STARTSET, ENDSET, NIMAGES, NPROCESSORS)
+function [imageMatrix1, imageMatrix2] = generateMonteCarloImageSet(JOBLIST)
+% [imageMatrix1, imageMatrix2] = generateMonteCarloImageSet(JOBLIST)
 % This code generates sets of pairs of particle pattern images that are
 % deformed by affine transformations.
 %
@@ -313,17 +313,14 @@ for n = 1 : nJobs
             a = tic; 
 
             % Parallel processing
-            parfor k = 1:imagesPerSet % Parallel loop over all the images
+            parfor k = 1 : imagesPerSet % Parallel loop over all the images
 
+                % Inform user
+                fprintf('Set %d of %d\n Generating image %d of %d\n\n', s, nSets, k,imagesPerSet);
+              
                 % Generate the image pairs. 
                 % Run compiled image generation code
-                if run_compiled
-                % Run compiled image generation code
-                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
-                else
-                 % Run image generation code
-                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
-                end
+                [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k), run_compiled);
 
                 % Save images to data matrix.;
                 imageMatrix1(:, :, k) = image_01 + cast(noiseMatrix1(:, :, k), 'like', image_01);
@@ -340,16 +337,13 @@ for n = 1 : nJobs
             a = tic; 
 
             % Single thread procesing
-            for k = 1:imagesPerSet % Parallel loop over all the images
+            for k = 1 : imagesPerSet % Parallel loop over all the images
 
+                % Inform user
+                fprintf('Set %d of %d\n Generating image %d of %d\n\n', s, nSets, k,imagesPerSet);
+                
                 % Generate the image pairs. 
-                % Run compiled image generation code
-                if run_compiled
-                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
-                else
-                 % Run image generation code
-                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
-                end
+                [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k), run_compiled);
 
                 % Save images to data matrix.;
                 imageMatrix1(:, :, k) = image_01 + cast(noiseMatrix1(:, :, k), 'like', image_01);

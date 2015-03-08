@@ -1,9 +1,13 @@
-%#codegen
-% function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, DIFFUSION_STD_DEV, TRANSFORMATIONMATRIX)
-function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, DIFFUSION_STD_DEV, TRANSFORMATIONMATRIX)
-% GENERATEIMAGES(imHeight, imWidth, TRANSFORMATIONMATRIX, saveFlag, saveDirectory)
-% Generates a series of synthetic particle images that have been transformed by a
-% specified series of transformation matrices. 
+function  [IMAGE1, IMAGE2] = generateImagePair_mc(...
+    IMAGE_HEIGHT, IMAGE_WIDTH, PARTICLE_DIAMETER_MEAN, ...
+    PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, ...
+    DIFFUSION_STD_DEV, TRANSFORMATION_MATRIX, RUN_COMPILED)
+% [IMAGE1, IMAGE2] = generateImagePair_mc(...
+%     IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, ...
+%     PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, ...
+%     DIFFUSION_STD_DEV, TRANSFORMATION_MATRIX, RUN_COMPILED)
+% Generates a series of synthetic particle images that have been
+%   transformed by a specified series of transformation matrices. 
 %
 % The equations used to generate the particles were taken from Equation 16 (on page 5) of the paper
 % "Methods for Digital Particle Image Sizing (DPIS): Comparisons and
@@ -12,31 +16,46 @@ function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTI
 % (doi:10.1016/j.flowmeasinst.2009.08.001)
 %
 % INPUTS
-%   IMAGEHEIGHT = Height of generated images (pixels)
+%   IMAGE_HEIGHT = Height of generated images in pixels
 %
-%   IMAGEWIDTH = Width of generate images (pixels)
+%   IMAGE_WIDTH = Width of generate images in pixels
 %
-%   PARTICLECONCENTRATION = Average number of particles per pixel
+%   PARTICLE_DIAMETER_MEAN = Mean of the particles' diameters in pixels.
+%       Each particle's diameter will be drawn from a normal
+%       distribution with a mean of PARTICLE_DIAMETER_MEAN and a standard
+%       deviation of PARTICLE_DIAMETER_STD.
 %
-%   TRANSFORMATIONMATRIX = 3 x 3 matrix that specifies the affine
-%   transformation relating the particle positions in the first image to
-%   the particle positions in the second image. 
+%   PARTICLE_DIAMETER_STD = Standard deviation of the particles' diameters
+%       in pixels. Each particle's diameter will be drawn from a normal
+%       distribution with a mean of PARTICLE_DIAMETER_MEAN and a standard
+%       deviation of PARTICLE_DIAMETER_STD.
 %
-%   SAVEFLAG = Flag to specify whether or not to save the generated images (1 to save, 0 to not save). 
+%   PARTICLE_CONCENTRATION = Image density of the particles in particles
+%       per pixel.
 %
-%   SAVEDIR = Directory in which to save the generated images. 
+%   DIFFUSION_STD_DEV = Standard deviation of the random component of each
+%       particle's displacement, specified in pixels. The displacements
+%       of the particles are calculated as the displacements due to the
+%       specified affine transform plus a random displacement drawn
+%       from a normal distribution with a mean of zero and a standard
+%       deviation of DIFFUSION_STD_DEV.
 %
-%   SAVENAME = Name of the images to save, which will be followed by '_A'
-%   and '_B' for the first and second images in the pair. 
+%   TRANSFORMATIONMATRIX = 3 x 3 homogeneous matrix that specifies the
+%   affine transformation relating the [x, y] positions of the particles
+%   in the first image to the [x', y'] particle positions in the
+%   second image. 
 %
-%   CONTROLCASE = Binary flag (0 or 1) specifying whether to generate a
-%   simple six-particle pattern to easily observe the effects of the
-%   transformation on the images. This should only be enabled for debugging
-%   purposes. 
+%   RUN_COMPILED = Boolean flag specifying whether or not to run the
+%       compiled version of the particle image generation code.
+%       The compiled executes about 100 times faster than the
+%       non-compiled code.
 %
 % OUTPUTS
-%   This code does not save any outputs to the workspace. Instead, it saves
-%   images to locations specified by the inputs to the code.
+%   IMAGE_01 = 2D array containing the intensity values of the first
+%   volumetric image.
+%
+%   IMAGE_02 = 2D array containing the intensity values of the second
+%   volumetric image.
 % 
 % SEE ALSO
 %    makeAffineTransform
@@ -47,8 +66,8 @@ function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTI
 
 % Double the height and width of the images so that rotations don't cause
 % cropping.
-augmentedWidth  = 2 * IMAGEWIDTH; % Double the width so that rotations don't cause cropping
-augmentedHeight = 2 * IMAGEHEIGHT; % Double the height so that rotations don't cause cropping
+augmentedWidth  = 2 * IMAGE_WIDTH; % Double the width so that rotations don't cause cropping
+augmentedHeight = 2 * IMAGE_HEIGHT; % Double the height so that rotations don't cause cropping
 
 % Calculate the coordinate of the geometric center of the image.
 xc = (augmentedWidth + 1 ) / 2; % X center of image
@@ -80,8 +99,12 @@ particle_diameters = abs(PARTICLE_DIAMETER_STD * randn(nParticles, 1) + PARTICLE
 % Gaussian Function that expresses the intensity distribution of the particle image on the "sensor"
 particleMaxIntensities = exp( -particleCenters .^ 2 / (2 * intensityStd ^ 2 ) ); 
 
-% Create a placeholder to store the generated image
-image1 = generateParticleImage(augmentedHeight, augmentedWidth, X1, Y1, particle_diameters, particleMaxIntensities);
+% Generate the first image. Choose between compiled and scripted code.
+if RUN_COMPILED
+    image1 = generateParticleImage_mex(augmentedHeight, augmentedWidth, X1, Y1, particle_diameters, particleMaxIntensities);
+else
+    image1 = generateParticleImage(    augmentedHeight, augmentedWidth, X1, Y1, particle_diameters, particleMaxIntensities);
+end
 
 % Crop the image and flip it vertically to place it in a right-handed coordinate system.
 Image1Cropped = flipud(image1(augmentedHeight / 4 + 1 : 3 * augmentedHeight / 4, augmentedWidth / 4 + 1 : 3 * augmentedWidth / 4));
@@ -90,10 +113,14 @@ Image1Cropped = flipud(image1(augmentedHeight / 4 + 1 : 3 * augmentedHeight / 4,
 IMAGE1 = uint16( (2^16 - 1) .* Image1Cropped .* 2.8^2 / PARTICLE_DIAMETER_MEAN ^2);
 
 % Transform the particle coordinates
-[Y2, X2] = transformImageCoordinates(TRANSFORMATIONMATRIX, X1, Y1, [yc xc]);
+[Y2, X2] = transformImageCoordinates(TRANSFORMATION_MATRIX, X1, Y1, [yc xc]);
 
-% Generate the second image
-image2 = generateParticleImage(augmentedHeight, augmentedWidth, X2 + random_displacement_matrix(:, 2), Y2 + random_displacement_matrix(:, 1), particle_diameters, particleMaxIntensities);
+% Generate the second image. Choose between compiled and scripted code.
+if RUN_COMPILED
+    image2 = generateParticleImage_mex(augmentedHeight, augmentedWidth, X2 + random_displacement_matrix(:, 2), Y2 + random_displacement_matrix(:, 1), particle_diameters, particleMaxIntensities);
+else
+    image2 = generateParticleImage(    augmentedHeight, augmentedWidth, X2 + random_displacement_matrix(:, 2), Y2 + random_displacement_matrix(:, 1), particle_diameters, particleMaxIntensities);
+end
 
 % Crop the second image
 Image2Cropped =  flipud(image2(augmentedHeight / 4 + 1: 3 * augmentedHeight / 4, augmentedWidth / 4 + 1: 3 * augmentedWidth / 4));

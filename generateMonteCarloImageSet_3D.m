@@ -187,7 +187,8 @@ for n = 1 : nJobs
     % Specify the Image type
     % mc means monte carlo analysis
     % h and w are the image heights and widths in pixels
-    casePrefix = [setType '_h' num2str(region_height) '_w' num2str(region_width)];
+    casePrefix = [setType '_h' num2str(region_height) ...
+                          '_w' num2str(region_width)];
 
     % Number of image sets
     nSets = endSet - startSet + 1;
@@ -200,8 +201,16 @@ for n = 1 : nJobs
     for s = 1 : nSets
         disp(['Generating set ' num2str(s) ' of ' num2str(nSets)]);
         fprintf(1, 'Image Set %04.0f\n', s); % Inform the user by printing a message to the screen.
-        imageDir = fullfile(imageSaveDir, [casePrefix '_' num2str(startSet + s - 1, '%05.0f')], 'raw'); % Directory in which to save images
-        parameterDir = fullfile(imageSaveDir, [casePrefix '_' num2str(startSet + s - 1, '%05.0f')], 'parameters'); % Directory in which to save parameters file
+        
+        % Directory in which to save images
+        imageDir = fullfile(imageSaveDir, ...
+            [casePrefix '_' num2str(startSet + s - 1, '%05.0f')], ...
+            'raw'); 
+        
+        % Directory in which to save parameters file.
+        parameterDir = fullfile(imageSaveDir, ...
+            [casePrefix '_' num2str(startSet + s - 1, '%05.0f')],...
+            'parameters'); 
 
         % Make raw image directory if it doesn't already exist
         if ~exist(imageDir, 'dir')
@@ -368,43 +377,48 @@ for n = 1 : nJobs
                 % Parallel processing
                 parfor k = 1 : imagesPerSet % Parallel loop over all the images
 
-                    % Generate the image pairs. 
-                    % Run compiled image generation code
-                    if run_compiled
-                    % Run compiled image generation code
-                        [image_01, image_02] = generateImagePair_3D_mc_mex(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
-                    else
-                     % Run image generation code
-                        [image_01, image_02] = generateImagePair_3D_mc(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
-                    end
-
-                    % Save images to data matrix.;
-                    imageMatrix1(:, :, :, k) = image_01 + cast(noiseMatrix1(:, :, :, k), 'like', image_01);
-                    imageMatrix2(:, :, :, k) = image_02 + cast(noiseMatrix2(:, :, :, k), 'like', image_02);
-
+                    % Generate the particle image pair.
+                    [image_01, image_02] = generateImagePair_3D_mc( ...
+                        region_height, region_width, region_depth, ...
+                        particle_diameter_mean, ...
+                        particle_diameter_std_list(k), ...
+                        concentrations(k), tforms(:, :, k), run_compiled);
+                  
+                    % Save first image to data matrix
+                    imageMatrix1(:, :, :, k) = image_01 + ...
+                        cast(noiseMatrix1(:, :, :, k), ...
+                        'like', image_01);
+                    
+                     % Save second image to data matrix
+                    imageMatrix2(:, :, :, k) = image_02 + ...
+                        cast(noiseMatrix2(:, :, :, k), ...
+                        'like', image_02);
                 end
             else    
                 % Single thread procesing
                 for k = 1 : imagesPerSet % Parallel loop over all the images
 
-                    % Generate the image pairs. 
-                    % Run compiled image generation code
-                    if run_compiled
-                        [image_01, image_02] = generateImagePair_3D_mc_mex(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
-                    else
-                     % Run image generation code
-                        [image_01, image_02] = generateImagePair_3D_mc(region_height, region_width, region_depth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
-                    end
-
-                    % Save images to data matrix.;
-                    imageMatrix1(:, :, :, k) = image_01 + cast(noiseMatrix1(:, :, :, k), 'like', image_01);
-                    imageMatrix2(:, :, :, k) = image_02 + cast(noiseMatrix2(:, :, :, k), 'like', image_02);
+                    % Generate the image pairs.
+                    [image_01, image_02] = generateImagePair_3D_mc( ...
+                        region_height, region_width, region_depth,  ...
+                        particle_diameter_mean, ...
+                        particle_diameter_std_list(k), ...
+                        concentrations(k), tforms(:, :, k), run_compiled);
+                    
+                    % Save first image to data matrix
+                    imageMatrix1(:, :, :, k) = image_01 + ...
+                        cast(noiseMatrix1(:, :, :, k), 'like', image_01);
+                    
+                    % Save first image to data matrix
+                    imageMatrix2(:, :, :, k) = image_02 + ...
+                        cast(noiseMatrix2(:, :, :, k), 'like', image_02);
 
                 end 
             end
             
         % Generate images in the linear-progression sense.
         % This statement is accessed when reSeed == 0;
+        
         else
             % Update the lists of particle diameter standard deviations
             % and particle concentrations to all have the same value, 

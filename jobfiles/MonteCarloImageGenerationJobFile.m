@@ -6,7 +6,7 @@ regionWidth = 64;
 
 % Number of processors to use
 % This number doesn't actually 
-DefaultJob.JobOptions.ParallelProcessing = 1;
+DefaultJob.JobOptions.ParallelProcessing = 0;
 
 % Number of digits in the file names to save.
 DefaultJob.JobOptions.NumberOfDigits = 6;
@@ -39,7 +39,7 @@ DefaultJob.Parameters.RegionWidth = regionWidth;
 
 % Set numbers
 DefaultJob.Parameters.Sets.Start = 1;
-DefaultJob.Parameters.Sets.End = 10;
+DefaultJob.Parameters.Sets.End = 1;
 DefaultJob.Parameters.Sets.ImagesPerSet = 10;
 
 % Rigid-body displacements (pixels)
@@ -77,12 +77,12 @@ DefaultJob.Parameters.DiffusionStdDev = [0 5];
 
 % Case 1
 SegmentItem = DefaultJob;
-SegmentItem.SetType = 'lin';
+SegmentItem.SetType = 'mc';
 SegmentItem.CaseName = '2015-03-07_diffusion_test';
 SegmentItem.Parameters.RegionHeight = 128;
 SegmentItem.Parameters.RegionWidth = 512;
-SegmentItem.Parameters.TX =  8 * [1 1];
-SegmentItem.Parameters.TY =  8 * [1 1];
+SegmentItem.Parameters.TX =  50 * [1 1];
+SegmentItem.Parameters.TY =  0 * [1 1];
 SegmentItem.Parameters.Rotation = pi/6 * [0 0];
 SegmentItem.Parameters.Scaling = [1, 1];
 
@@ -97,23 +97,10 @@ SegmentItem.Parameters.ParticleDiameter.Mean = sqrt(8);
 SegmentItem.Parameters.ParticleDiameter.Std = [0.00, 0.00];
 
 % Standard deviation of random particle displacements.
-SegmentItem.Parameters.DiffusionStdDev = [0, 5];
+SegmentItem.Parameters.DiffusionStdDev = [2, 2];
 
 % This is the first job in the list of jobs
 JOBLIST(1) = SegmentItem;
-
-
-% Case 2
-% SegmentItem = DefaultJob;
-SegmentItem.SetType = 'mc';
-SegmentItem.CaseName = '2015-03-07_diffusion_test_02';
-
-% This is the first job in the list of jobs
-JOBLIST(end + 1) = SegmentItem;
-
-
-
-
 
 end
 
