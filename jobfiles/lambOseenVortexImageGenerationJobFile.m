@@ -57,11 +57,11 @@ JOBFILE.JobOptions.RunCompiled = 1;
 JOBFILE.ProjectRepository = '~/Desktop/vortex';
 JOBFILE.ImageType = 'synthetic';
 JOBFILE.SetType = 'vortex';
-JOBFILE.CaseName = 'lambvortex_2014-12-31';
+JOBFILE.CaseName = 'lamb_vortex_diffusion_large';
 
 % These are the height and width of the generated images in pixels
-JOBFILE.Parameters.Images.Height = 1024;
-JOBFILE.Parameters.Images.Width = 1024;
+JOBFILE.Parameters.Images.Height = 128;
+JOBFILE.Parameters.Images.Width  = 512;
 
 % Particle concentration (particles per pixel)
 JOBFILE.Parameters.Images.ParticleConcentration = 0.025; 
@@ -90,11 +90,11 @@ JOBFILE.Parameters.ImageClass = 'uint16';
 JOBFILE.Parameters.Sets.Start = 1;
 
 % Number of the last set of images to generate
-JOBFILE.Parameters.Sets.End = 2;
+JOBFILE.Parameters.Sets.End = 1;
 
 % Number of images to generate per set. Larger numbers of images per set result in 
 % more time through which the particle positions are advected. 
-JOBFILE.Parameters.Sets.ImagesPerSet = 20;
+JOBFILE.Parameters.Sets.ImagesPerSet = 500;
 
 % Diameter of the vortex ring (i.e. spacing between cores) (pixels)
 JOBFILE.Parameters.Vortex.VortexRadius = 200;
@@ -129,8 +129,8 @@ JOBFILE.Parameters.Vortex.EndTime = JOBFILE.Parameters.Sets.ImagesPerSet - 1;
 
 % These lines specify the percentage of the displacement noise that
 % falls below DisplacementNoiseLevel
-JOBFILE.Parameters.Flow.DisplacementNoiseLevel = 0;
-JOBFILE.Parameters.Flow.DisplacementNoiseConfidenceInterval = 0.99;
+JOBFILE.Parameters.Flow.DisplacementNoiseLevel = 20;
+JOBFILE.Parameters.Flow.DisplacementNoiseConfidenceInterval = 0.50;
 
 % These lines specify the amount of Gaussian white noise 
 % in the images. 

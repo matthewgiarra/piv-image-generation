@@ -1,6 +1,6 @@
 %#codegen
-% function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLEDIAMETER, PARTICLECONCENTRATION, TRANSFORMATIONMATRIX)
-function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, TRANSFORMATIONMATRIX)
+% function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, DIFFUSION_STD_DEV, TRANSFORMATIONMATRIX)
+function  [IMAGE1, IMAGE2] = generateImagePair_mc(IMAGEHEIGHT, IMAGEWIDTH, PARTICLE_DIAMETER_MEAN, PARTICLE_DIAMETER_STD, PARTICLECONCENTRATION, DIFFUSION_STD_DEV, TRANSFORMATIONMATRIX)
 % GENERATEIMAGES(imHeight, imWidth, TRANSFORMATIONMATRIX, saveFlag, saveDirectory)
 % Generates a series of synthetic particle images that have been transformed by a
 % specified series of transformation matrices. 
@@ -61,6 +61,9 @@ intensityStd = 0.25; % / (PARTICLEDIAMETER^2 / 8);
 % Number of particles to generate
 nParticles = round(PARTICLECONCENTRATION * (augmentedHeight + 2 * PARTICLE_DIAMETER_MEAN) * (augmentedWidth + 2 * PARTICLE_DIAMETER_MEAN));
 
+% Make random displacement matrix.
+random_displacement_matrix = DIFFUSION_STD_DEV * randn([nParticles, 2]); 
+
 % Uniformly distributed random numbers  from -0.5 to 0.5 corresponding to
 % the depth-position of the particles in relation to the center of the 
 % light sheet
@@ -90,7 +93,7 @@ IMAGE1 = uint16( (2^16 - 1) .* Image1Cropped .* 2.8^2 / PARTICLE_DIAMETER_MEAN ^
 [Y2, X2] = transformImageCoordinates(TRANSFORMATIONMATRIX, X1, Y1, [yc xc]);
 
 % Generate the second image
-image2 = generateParticleImage(augmentedHeight, augmentedWidth, X2, Y2, particle_diameters, particleMaxIntensities);
+image2 = generateParticleImage(augmentedHeight, augmentedWidth, X2 + random_displacement_matrix(:, 2), Y2 + random_displacement_matrix(:, 1), particle_diameters, particleMaxIntensities);
 
 % Crop the second image
 Image2Cropped =  flipud(image2(augmentedHeight / 4 + 1: 3 * augmentedHeight / 4, augmentedWidth / 4 + 1: 3 * augmentedWidth / 4));

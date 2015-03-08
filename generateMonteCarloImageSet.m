@@ -54,7 +54,7 @@ for n = 1 : nJobs
     numberFormat = ['%0' num2str(numberOfDigits) '.0f'];
 
     % Number of processors
-    nProcessors = JobFile.JobOptions.NumberOfProcessors;
+    run_parallel_processors = JobFile.JobOptions.ParallelProcessing;
     
     % Flag for whether or not to run compiled codes
     run_compiled = JobFile.JobOptions.RunCompiled;
@@ -96,8 +96,11 @@ for n = 1 : nJobs
     particle_diameter_mean = JobFile.Parameters.ParticleDiameter.Mean;
     
     % Noise parameters
-    noiseMean = JobFile.Parameters.Noise.Mean;
-    noiseStd  = JobFile.Parameters.Noise.Std;
+    noiseMean_intensity = JobFile.Parameters.Noise.Intensity.Mean;
+    noiseStd_intensity  = JobFile.Parameters.Noise.Intensity.Std;
+    
+    % Particle motion noise
+    diffusion_stdDev = JobFile.Parameters.DiffusionStdDev;
 
     % Specify explicitly the bounds of the scaling parameter for the Monte
     % Carlo simulation
@@ -154,6 +157,10 @@ for n = 1 : nJobs
     % deviation 
     particle_diameter_std_i = particle_diameter_std(1);
     particle_diameter_std_f = particle_diameter_std(2);
+    
+    % Specify the bounds of the diffusion standard deviation
+    diffusion_stdDev_i = diffusion_stdDev(1);
+    diffusion_stdDev_f = diffusion_stdDev(2);
 
     % Specify the Image type
     % mc means monte carlo analysis
@@ -204,7 +211,7 @@ for n = 1 : nJobs
             Parameters.TranslationX = (linspace(TXi, TXf, imagesPerSet))';
             Parameters.TranslationY = (linspace(TYi, TYf, imagesPerSet))';  
             Parameters.ParticleDiameterStd = (linspace(particle_diameter_std_i, particle_diameter_std_f, imagesPerSet))';
-
+            Parameters.DiffusionStdDev = (linspace(diffusion_stdDev_i, diffusion_stdDev_f, imagesPerSet))';
         % Monte carlo image sets
         elseif isMC
             % Initialize all of the fields in the parameters array
@@ -217,6 +224,7 @@ for n = 1 : nJobs
             Parameters.TranslationX = zeros(imagesPerSet, 1);
             Parameters.TranslationY = zeros(imagesPerSet, 1);
             Parameters.ParticleDiameterStd = zeros(imagesPerSet, 1);
+            Parameters.DiffusionStdDev = zeros(imagesPerSet, 1);
             Parameters.Tforms = zeros(3, 3, imagesPerSet);
 
             % Populate the transformation parameters
@@ -231,8 +239,13 @@ for n = 1 : nJobs
                 Parameters.TranslationX(k) = TXi + (TXf - TXi) * rand; % Random horizontal displacement;
                 Parameters.TranslationY(k) =  TYi + (TYf - TYi) * rand; % Random vertical displacement;
                 Parameters.ParticleDiameterStd(k) = particle_diameter_std_i + (particle_diameter_std_f - particle_diameter_std_i) * rand;
+                Parameters.DiffusionStdDev(k) = diffusion_stdDev_i + (diffusion_stdDev_f - diffusion_stdDev_i) * rand;
             end
         end
+        
+        % Copy the list of particle diffusions to a variable
+        % that isn't inside a structure.
+        particle_diffusion_stDev_list = Parameters.DiffusionStdDev;
 
         % Modify Rotation angles to fit the specified units and type
         if isLin % Case of linear range
@@ -268,6 +281,7 @@ for n = 1 : nJobs
         Parameters.RotationAngleUnits = rotationAngleUnits;
         Parameters.ParticleDiameterStdRange = particle_diameter_std;
         Parameters.ParticleDiameterMean = particle_diameter_mean;
+        Parameters.ParticleStdDevRange = diffusion_stdDev;
         
         % Save parameters to their own variables to cut down on data transfer with the parallel for loop
         concentrations = Parameters.Concentration;
@@ -289,11 +303,11 @@ for n = 1 : nJobs
 
         % Make noise matrices. The 2.8 corresponds to the multiple of the standard
         % deviation corresponding to a 99.5% coverage factor.
-        noiseMatrix1 = noiseMean * maxVal + noiseStd / 2.8 * maxVal * randn(size(imageMatrix1));
-        noiseMatrix2 = noiseMean * maxVal + noiseStd / 2.8 * maxVal * randn(size(imageMatrix2));
+        noiseMatrix1 = noiseMean_intensity * maxVal + noiseStd_intensity / 2.8 * maxVal * randn(size(imageMatrix1));
+        noiseMatrix2 = noiseMean_intensity * maxVal + noiseStd_intensity / 2.8 * maxVal * randn(size(imageMatrix2));
 
         % In the case of parallel processing ...
-        if nProcessors > 1
+        if run_parallel_processors
 
             % Start a timer.
             a = tic; 
@@ -305,10 +319,10 @@ for n = 1 : nJobs
                 % Run compiled image generation code
                 if run_compiled
                 % Run compiled image generation code
-                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
                 else
                  % Run image generation code
-                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
                 end
 
                 % Save images to data matrix.;
@@ -331,10 +345,10 @@ for n = 1 : nJobs
                 % Generate the image pairs. 
                 % Run compiled image generation code
                 if run_compiled
-                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_mc_mex(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
                 else
                  % Run image generation code
-                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), tforms(:, :, k));
+                    [image_01, image_02] = generateImagePair_mc(regionHeight, regionWidth, particle_diameter_mean, particle_diameter_std_list(k), concentrations(k), particle_diffusion_stDev_list(k), tforms(:, :, k));
                 end
 
                 % Save images to data matrix.;
