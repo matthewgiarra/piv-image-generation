@@ -60,11 +60,11 @@ JOBFILE.SetType = 'vortex';
 JOBFILE.CaseName = 'piv_benchmark_vortex_images';
 
 % These are the height and width of the generated images in pixels
-JOBFILE.Parameters.Images.Height = 1024;
-JOBFILE.Parameters.Images.Width  = 1024;
+JOBFILE.Parameters.Images.Height = 128;
+JOBFILE.Parameters.Images.Width  = 512;
 
 % Particle concentration (particles per pixel)
-JOBFILE.Parameters.Images.ParticleConcentration = 0.025; 
+JOBFILE.Parameters.Images.ParticleConcentration = 0.05; 
 
 % This is the average particle diameter in pixels
 JOBFILE.Parameters.Images.ParticleDiameter.Mean = sqrt(8); 

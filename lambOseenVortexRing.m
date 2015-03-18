@@ -104,7 +104,8 @@ yo = reshape(Y0, nPoints, 1);
 solverOptions = odeset('RelTol', 1E-8, 'AbsTol', 1E-8);
 
 % Run the solver
-[t, positions] = ode45(@lambOseenVortexRingVelocityFunction, TIMESPAN, [xo; yo], solverOptions, VORTEXPARAMETERS);
+[t, positions] = ode45(@lambOseenVortexRingVelocityFunction, TIMESPAN,...
+    [xo; yo], solverOptions, VORTEXPARAMETERS);
 
 % If the specified time span was less than 2 elements long, take only the
 % first and last elements of the solution. Otherwise return all of the elements.

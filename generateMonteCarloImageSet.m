@@ -282,6 +282,8 @@ for n = 1 : nJobs
         Parameters.ParticleDiameterStdRange = particle_diameter_std;
         Parameters.ParticleDiameterMean = particle_diameter_mean;
         Parameters.ParticleStdDevRange = diffusion_stdDev;
+        Parameters.Noise.Intensity.Mean = JobFile.Parameters.Noise.Intensity.Mean;
+        Parameters.Noise.Intensity.Std = JobFile.Parameters.Noise.Intensity.Std;
         
         % Save parameters to their own variables to cut down on data transfer with the parallel for loop
         concentrations = Parameters.Concentration;
@@ -303,8 +305,8 @@ for n = 1 : nJobs
 
         % Make noise matrices. The 2.8 corresponds to the multiple of the standard
         % deviation corresponding to a 99.5% coverage factor.
-        noiseMatrix1 = noiseMean_intensity * maxVal + noiseStd_intensity / 2.8 * maxVal * randn(size(imageMatrix1));
-        noiseMatrix2 = noiseMean_intensity * maxVal + noiseStd_intensity / 2.8 * maxVal * randn(size(imageMatrix2));
+        noiseMatrix1 = noiseMean_intensity * maxVal + noiseStd_intensity * maxVal * randn(size(imageMatrix1));
+        noiseMatrix2 = noiseMean_intensity * maxVal + noiseStd_intensity * maxVal * randn(size(imageMatrix2));
 
         % In the case of parallel processing ...
         if run_parallel_processors
