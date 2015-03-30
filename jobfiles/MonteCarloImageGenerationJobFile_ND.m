@@ -1,4 +1,4 @@
-function JOBLIST = MonteCarloImageGenerationJobFile_3D()
+function JOBLIST = MonteCarloImageGenerationJobFile_ND()
 
 % Region dimensions
 regionHeight = 64;

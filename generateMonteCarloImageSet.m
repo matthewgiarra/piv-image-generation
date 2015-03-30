@@ -175,7 +175,7 @@ for n = 1 : nJobs
     isLinProg = ~isempty(regexpi(setType, 'lin'));
 
     % Generate the images. Loop over all of the specified image sets.
-    for s = 1:nSets
+    for s = 1 : nSets
         disp(['Generating set ' num2str(s) ' of ' num2str(nSets)]);
         fprintf(1, 'Image Set %04.0f\n', s); % Inform the user by printing a message to the screen.
         imageDir = fullfile(imageSaveDir, [casePrefix '_' num2str(startSet + s - 1, '%05.0f')], 'raw'); % Directory in which to save images
@@ -212,6 +212,7 @@ for n = 1 : nJobs
             Parameters.TranslationY = (linspace(TYi, TYf, imagesPerSet))';  
             Parameters.ParticleDiameterStd = (linspace(particle_diameter_std_i, particle_diameter_std_f, imagesPerSet))';
             Parameters.DiffusionStdDev = (linspace(diffusion_stdDev_i, diffusion_stdDev_f, imagesPerSet))';
+        
         % Monte carlo image sets
         elseif isMC
             % Initialize all of the fields in the parameters array
@@ -289,13 +290,7 @@ for n = 1 : nJobs
         concentrations = Parameters.Concentration;
         particle_diameter_std_list = Parameters.ParticleDiameterStd;
         tforms = Parameters.Tforms;
-        
-        % Don't specify particle diameters here.
-        % Instead draw them from a normal distribution
-        % whose standard deviation is drawn from a uniform
-        % distribution of possible values.
-%         particleDiameters = Parameters.ParticleDiameter;
-        
+     
         % Preallocate memory for the image matrices.
         imageMatrix1 = zeros(regionHeight, regionWidth, imagesPerSet, 'uint16');
         imageMatrix2 = zeros(regionHeight, regionWidth, imagesPerSet, 'uint16');

@@ -1,5 +1,6 @@
 %#codegen
-function IMAGEOUT = generateParticleImage(HEIGHT, WIDTH, X, Y, PARTICLEDIAMETERS, PARTICLEMAXINTENSITIES)
+function IMAGEOUT = generateParticleImage(HEIGHT, WIDTH, X, Y, ...
+    PARTICLEDIAMETERS, PARTICLEMAXINTENSITIES);
 % This function generate a synthetic PIV particle image.
 % Usage: IMAGEOUT = generateParticleImage(HEIGHT, WIDTH, X, Y, PARTICLEDIAMETERS, PARTICLEMAXINTENSITIES)
 %

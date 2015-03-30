@@ -30,7 +30,7 @@ Zt = transformedPoints(3, :);
 % Turn transformed X, Y, and Z coordinates back into matrices and shift the origin back to (1, 1, 1)
 YOUT = reshape(Yt, num_rows, num_cols, num_depths) + yc;
 XOUT = reshape(Xt, num_rows, num_cols, num_depths) + xc;
-ZOUT = reshape(Zt, num_rows, num_cols, num_depths) + yc;
+ZOUT = reshape(Zt, num_rows, num_cols, num_depths) + zc;
 
 end
 
