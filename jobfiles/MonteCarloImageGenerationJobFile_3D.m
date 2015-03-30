@@ -69,7 +69,7 @@ SegmentItem.Parameters.Scaling = 1 * [1, 1];
 SegmentItem.Parameters.Noise.Mean = 0.00;
 SegmentItem.Parameters.Noise.Std = 0.00;
 SegmentItem.Parameters.ParticleDiameter.Mean = sqrt(8);
-SegmentItem.parameters.ParticleDiameter.Std = [0.00, 0.00];
+SegmentItem.Parameters.ParticleDiameter.Std = [0.00, 0.00];
 JOBLIST(1) = SegmentItem;
 
 

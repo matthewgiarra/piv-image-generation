@@ -1,4 +1,6 @@
-function [TRANSFORM, SCALING, ROTATION, SHEARING, TRANSLATION] = makeAffineTransform(SCALE, ROTATIONANGLE, SHEARX, SHEARY, TRANSLATIONX, TRANSLATIONY, PLOT)
+function [TRANSFORM, SCALING, ROTATION, SHEARING, TRANSLATION] = ...
+    makeAffineTransform(SCALE, ROTATIONANGLE, SHEARX, SHEARY, ...
+    TRANSLATIONX, TRANSLATIONY, PLOT)
 % MAKEAFFINETRANSFORM(SCALEX, SCALEY, ROTATIONANGLE, SHEARX, SHEARY, TRANSLATIONX, TRANSLATIONY, PLOT)
 % Creates a matrix that performs an affine transformation on a vector or set of vectors; that is, it performs scaling,
 % rotation, shearing, and translation. 

@@ -92,6 +92,12 @@ for n = 1 : nJobs
 
     % Range of isotropic scaling factors
     scaling = JobFile.Parameters.Scaling; 
+    
+    % Range of horizontal shearing
+    shearX = JobFile.Parameters.ShearX;
+    
+    % Range of vertical shearing
+    shearY = JobFile.Parameters.ShearY;
 
     % Ranges of Euler-decomposed rotation angles (degrees)
     rotation_angle_range_Z_01 = JobFile.Parameters.Rotation_Z_01;
@@ -155,6 +161,14 @@ for n = 1 : nJobs
         isRad = 1;
     end
 
+    % Specify explicitly the bounds of the horizontal shearing parameters
+    shear_x_i = shearX(1);
+    shear_x_f = shearX(2);
+    
+    % Specify explicitly the bounds of the vertical shearing parameters
+    shear_y_i = shearY(1);
+    shear_y_f = shearY(2);
+    
     % Specify explicitly the bounds of the horizontal displacement parameter
     TXi = tX(1);
     TXf = tX(2);
@@ -237,6 +251,10 @@ for n = 1 : nJobs
                                rotation_angles_Y_raw, ...
                                rotation_angles_Z_02_raw];
             
+            % Shearing vectors
+            Parameters.ShearX = (linspace(shear_x_i, shear_x_f, imagesPerSet))';
+            Parameters.ShearY = (linspace(shear_y_i, shear_y_f, imagesPerSet))'; 
+            
             % Create particle pattern displacement vectors
             Parameters.TranslationX = (linspace(TXi, TXf, imagesPerSet))';
             Parameters.TranslationY = (linspace(TYi, TYf, imagesPerSet))'; 
@@ -252,6 +270,8 @@ for n = 1 : nJobs
             Parameters.TranslationX = zeros(imagesPerSet, 1);
             Parameters.TranslationY = zeros(imagesPerSet, 1);
             Parameters.TranslationZ = zeros(imagesPerSet, 1);
+            Parameters.ShearX = zeros(imagesPerSet, 1);
+            Parameters.ShearY = zeros(imagesPerSet, 1);
             Parameters.ParticleDiameterStd = zeros(imagesPerSet, 1);
             Parameters.Tforms = zeros(4, 4, imagesPerSet);
             
@@ -284,6 +304,12 @@ for n = 1 : nJobs
                 % Random depthwise displacement;
                 Parameters.TranslationZ(k) =  TZi + (TZf - TZi) * rand; 
                 
+                % Random horizontal shearing
+                Parameters.ShearX(k) = shear_x_i + (shear_x_f - shear_x_i) * rand;
+                
+                % Random vertical shearing
+                Parameters.ShearY(k) = shear_y_i + (shear_y_f - shear_y_i) * rand;
+                
                 % Random particle diameter standard deviations.
                 Parameters.ParticleDiameterStd(k) = particle_diameter_std_i + (particle_diameter_std_f - particle_diameter_std_i) * rand;
             end
@@ -308,8 +334,10 @@ for n = 1 : nJobs
             
             % Generate the 3D similarity transformation matrix
             Parameters.Tforms(:, :, k) = ...
-                makeSimilarityTransform_3D(Parameters.Scaling(k), ...
+                makeAffineTransform_3D(Parameters.Scaling(k), ...
                                            Parameters.Rotation(k, :), ...
+                                           Parameters.ShearX(k), ...
+                                           Parameters.ShearY(k), ...
                                            Parameters.TranslationX(k), ...
                                            Parameters.TranslationY(k), ...
                                            Parameters.TranslationZ(k));     

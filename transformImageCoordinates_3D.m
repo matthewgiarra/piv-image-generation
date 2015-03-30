@@ -1,5 +1,6 @@
 %#codegen
-function [YOUT, XOUT, ZOUT] = transformImageCoordinates_3D(TRANSFORM, XGRID, YGRID, ZGRID, CENTER)
+function [YOUT, XOUT, ZOUT] = transformImageCoordinates_3D(TRANSFORM, ...
+    XGRID, YGRID, ZGRID, CENTER)
 
 % Count rows and columns in the original image 
 [num_rows, num_cols, num_depths] = size(XGRID);
@@ -20,7 +21,8 @@ xPointsVect = reshape(xPoints, 1, numel(xPoints));
 zPointsVect = reshape(zPoints, 1, numel(zPoints));
 
 % Apply the transformation matrix to the shifted points
-transformedPoints = TRANSFORM * [xPointsVect; yPointsVect; zPointsVect; ones( 1, length(xPointsVect ) ) ];
+transformedPoints = TRANSFORM * [xPointsVect; yPointsVect; zPointsVect; ...
+    ones( 1, length(xPointsVect ) ) ];
 
 % Extract the X, Y, and Z coordinates of the transformed points.
 Yt = transformedPoints(2, :);

@@ -14,7 +14,7 @@ DefaultJob.JobOptions.ReSeed = 0;
 
 DefaultJob.ImageType = 'synthetic';
 DefaultJob.SetType = 'mc';
-DefaultJob.CaseName = '2015-03-27_translation_only';
+DefaultJob.CaseName = '2015-03-30_shear_test';
 DefaultJob.ProjectRepository = '~/Desktop/piv_test_images_3D';
 
 DefaultJob.Parameters.RegionHeight = regionHeight;
@@ -32,7 +32,15 @@ DefaultJob.Parameters.TZ = 1 * regionDepth  / 8 * [-1, 1];
 DefaultJob.Parameters.Scaling = [1 1]; 
 
 % Range of rotation angles (degrees)
-DefaultJob.Parameters.Rotation = 0 * [1 1];
+DefaultJob.Parameters.Rotation_Z_01 = 0 * [1 1];
+DefaultJob.Parameters.Rotation_Y = 0 * [1 1];
+DefaultJob.Parameters.Rotation_Z_02 = 0 * [1 1];
+
+% Range of horizontal shearing factors
+DefaultJob.Parameters.ShearX = 0 * [1, 1];
+
+% Range of vertical shearing factors
+DefaultJob.Parameters.ShearY = 0 * [1, 1];
 
 % Range of particle concentrations (particles per pixel)
 DefaultJob.Parameters.ParticleConcentration = 0.002 * [1 1];
@@ -55,23 +63,24 @@ DefaultJob.Parameters.BeamPlaneStdDev = 4;
 % Case 1
 SegmentItem = DefaultJob;
 SegmentItem.SetType = 'lin';
-SegmentItem.CaseName = '2015-03-27_volume_test_z_disp_';
+SegmentItem.CaseName = '2015-03-30_shear_test';
 SegmentItem.Parameters.RegionHeight = 64;
 SegmentItem.Parameters.RegionWidth = 64;
 SegmentItem.Parameters.RegionDepth = 64;
 SegmentItem.Parameters.TX =  0 * [0 1];
 SegmentItem.Parameters.TY =  0 * [0 1];
-SegmentItem.Parameters.TZ =  1 * [0 32];
+SegmentItem.Parameters.TZ =  0 * [0 32];
 SegmentItem.Parameters.Rotation_Z_01 = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Y    = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Z_02 = 0 * pi * [0 1];
+SegmentItem.Parameters.ShearX = 1 * [0, 1];
+SegmentItem.Parameters.ShearY = 0.0 * [0, 1];
 SegmentItem.Parameters.Scaling = 1 * [1, 1];
 SegmentItem.Parameters.Noise.Mean = 0.00;
 SegmentItem.Parameters.Noise.Std = 0.00;
 SegmentItem.Parameters.ParticleDiameter.Mean = sqrt(8);
-SegmentItem.parameters.ParticleDiameter.Std = [0.00, 0.00];
+SegmentItem.Parameters.ParticleDiameter.Std = [0.00, 0.00];
 JOBLIST(1) = SegmentItem;
-
 
 end
 
