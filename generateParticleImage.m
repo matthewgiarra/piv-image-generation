@@ -1,6 +1,6 @@
 %#codegen
 function IMAGEOUT = generateParticleImage(HEIGHT, WIDTH, X, Y, ...
-    PARTICLEDIAMETERS, PARTICLEMAXINTENSITIES);
+    PARTICLE_DIAMETERS, PARTICLE_MAX_INTENSITIES);
 % This function generate a synthetic PIV particle image.
 % Usage: IMAGEOUT = generateParticleImage(HEIGHT, WIDTH, X, Y, PARTICLEDIAMETERS, PARTICLEMAXINTENSITIES)
 %
@@ -23,15 +23,22 @@ function IMAGEOUT = generateParticleImage(HEIGHT, WIDTH, X, Y, ...
 % Create a placeholder to store the generated image
 imagePlaceholder = zeros(HEIGHT, WIDTH); 
 
+% Only render particles whose intensities are above some threshold,
+% which we specify here as the value of a zero-mean Gaussian function
+% at two standard deviations (so that the "width" of a symmetric 
+% Gaussian beam is four times the beam's standard deviation).
+cutoff_intensity = exp(-2);
+
 % Determine which particles to render. Only render particles whose images lie
-% within the image domain. 
-particlesToRender = X <= WIDTH & X >= 1 & Y <= HEIGHT & Y >= 1;
+% within the image domain.
+particlesToRender = X <= WIDTH & X >= 1 & Y <= HEIGHT & Y >= 1 & ...
+    PARTICLE_MAX_INTENSITIES >= cutoff_intensity;
 
 % Extract the coordinates and brightness of the particles to be rendered.
 xRender = X(particlesToRender);
 yRender = Y(particlesToRender);
-particleIntensities = PARTICLEMAXINTENSITIES(particlesToRender);
-particleDiameters = PARTICLEDIAMETERS(particlesToRender);
+particleIntensities = PARTICLE_MAX_INTENSITIES(particlesToRender);
+particleDiameters = PARTICLE_DIAMETERS(particlesToRender);
 
 % Determine the number of particles to render
 numberOfParticlesToRender = length(xRender);
@@ -39,13 +46,13 @@ numberOfParticlesToRender = length(xRender);
 % Determine the miniumum and maximum columns (leftmost and rightmost pixels) in the image
 % to which each particle contributes some intensity,
 % fractional values
-minRenderedCols_fract = max(1,    (xRender - 0.5 * particleDiameters));
+minRenderedCols_fract = max(1,     (xRender - 0.5 * particleDiameters));
 maxRenderedCols_fract = min(WIDTH, (xRender + 0.5 * particleDiameters));
 
 % Determine the minimum and maximum rows (topmost and bottommost pixels) in
 % the image to which each particle contributes some intensity, 
 % fractional values
-minRenderedRows_fract = max(1,     (yRender - 0.5 * particleDiameters));
+minRenderedRows_fract = max(1,      (yRender - 0.5 * particleDiameters));
 maxRenderedRows_fract = min(HEIGHT, (yRender + 0.5 * particleDiameters));
 
 % Take the whole-number part of the fractional values.
@@ -62,13 +69,24 @@ for p = 1 : numberOfParticlesToRender
         for r = minRenderedRows(p) : maxRenderedRows(p)
             imagePlaceholder(r, c) = imagePlaceholder(r, c) + ...
                 particleIntensities(p) * (particleDiameters(p))^2 * pi / 32 *...
-                   (erf( particleDiameters(p) *  (c - xRender(p) + 0.5) / particleDiameters(p)) - erf(particleDiameters(p) * (c - xRender(p) - 0.5) / particleDiameters(p))) * ...
-                   (erf( particleDiameters(p) *  (r - yRender(p) + 0.5) / particleDiameters(p)) - erf(particleDiameters(p) * (r - yRender(p) - 0.5) / particleDiameters(p)));
+                   (erf( particleDiameters(p) *  (c - xRender(p) + 0.5) ...
+                   / particleDiameters(p)) - erf(particleDiameters(p) * ...
+                   (c - xRender(p) - 0.5) / particleDiameters(p))) * ...
+                   ...
+                   (erf( particleDiameters(p) *  (r - yRender(p) + 0.5) ...
+                   / particleDiameters(p)) - erf(particleDiameters(p) * ...
+                   (r - yRender(p) - 0.5) / particleDiameters(p)));
         end
     end    
 end
 
+% Keep the image from over-saturating by limiting its maximum value to one.
+if max(imagePlaceholder(:)) > 1
+    imagePlaceholder = imagePlaceholder ./ max(imagePlaceholder(:));
+end
+
 % Flip the image, which contains no noise
 IMAGEOUT = flipud(imagePlaceholder);
+
 
 end
