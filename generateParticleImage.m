@@ -36,18 +36,25 @@ particleDiameters = PARTICLEDIAMETERS(particlesToRender);
 % Determine the number of particles to render
 numberOfParticlesToRender = length(xRender);
 
-% Average particle diameter
-mean_particle_diameter = mean(particleDiameters);
-
 % Determine the miniumum and maximum columns (leftmost and rightmost pixels) in the image
-% to which each particle contributes some intensity.
-minRenderedCols = max(1,    floor(xRender - 0.75 * mean_particle_diameter));
-maxRenderedCols = min(WIDTH, ceil(xRender + 0.75 * mean_particle_diameter));
+% to which each particle contributes some intensity,
+% fractional values
+minRenderedCols_fract = max(1,    (xRender - 0.5 * particleDiameters));
+maxRenderedCols_fract = min(WIDTH, (xRender + 0.5 * particleDiameters));
 
 % Determine the minimum and maximum rows (topmost and bottommost pixels) in
-% the image to which each particle contributes some intensity.
-minRenderedRows = max(1,     floor(yRender - 0.75 * mean_particle_diameter));
-maxRenderedRows = min(HEIGHT, ceil(yRender + 0.75 * mean_particle_diameter));
+% the image to which each particle contributes some intensity, 
+% fractional values
+minRenderedRows_fract = max(1,     (yRender - 0.5 * particleDiameters));
+maxRenderedRows_fract = min(HEIGHT, (yRender + 0.5 * particleDiameters));
+
+% Take the whole-number part of the fractional values.
+minRenderedCols = minRenderedCols_fract - rem(minRenderedCols_fract, 1);
+maxRenderedCols = maxRenderedCols_fract - rem(maxRenderedCols_fract, 1);
+
+% Take the whole-number part of the fractional values.
+minRenderedRows = minRenderedRows_fract - rem(minRenderedRows_fract, 1);
+maxRenderedRows = maxRenderedRows_fract - rem(maxRenderedRows_fract, 1);
 
 % Generate the intensities from each particle.
 for p = 1 : numberOfParticlesToRender
