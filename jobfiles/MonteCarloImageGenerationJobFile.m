@@ -40,7 +40,7 @@ DefaultJob.Parameters.RegionWidth = regionWidth;
 % Set numbers
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 10000;
+DefaultJob.Parameters.Sets.ImagesPerSet = 10;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.TX =  1 * regionWidth / 8  * [-1 1];

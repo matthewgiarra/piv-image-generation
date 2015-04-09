@@ -63,6 +63,9 @@ maxRenderedRows = min(HEIGHT, ceil(yRender + 0.75 * mean_particle_diameter));
 minRenderedDepth = max(1,   floor(zRender - 0.75 * mean_particle_diameter));
 maxRenderedDepth = min(DEPTH, ceil(zRender + 0.75 * mean_particle_diameter));
 
+% Square root of 8. Just calculate this once.
+sqrt8 = sqrt(8);
+
 % Generate the intensities from each particle.
 for p = 1 : numberOfParticlesToRender
     for c = minRenderedCols(p) : maxRenderedCols(p)
@@ -70,9 +73,9 @@ for p = 1 : numberOfParticlesToRender
            for d = minRenderedDepth(p) : maxRenderedDepth(p)
                imagePlaceholder(r, c, d) = imagePlaceholder(r, c, d) + ...
                 particleIntensities(p) * (particleDiameters(p))^2 * pi / 32 *...
-                   (erf( particleDiameters(p) *  (c - xRender(p) + 0.5) / particleDiameters(p)) - erf(particleDiameters(p) * (c - xRender(p) - 0.5) / particleDiameters(p))) * ...
-                   (erf( particleDiameters(p) *  (r - yRender(p) + 0.5) / particleDiameters(p)) - erf(particleDiameters(p) * (r - yRender(p) - 0.5) / particleDiameters(p))) * ...
-                   (erf( particleDiameters(p) *  (d - zRender(p) + 0.5) / particleDiameters(p)) - erf(particleDiameters(p) * (d - zRender(p) - 0.5) / particleDiameters(p)));
+                   (erf( sqrt8 *  (c - xRender(p) + 0.5) / particleDiameters(p)) - erf(sqrt8 * (c - xRender(p) - 0.5) / particleDiameters(p))) * ...
+                   (erf( sqrt8 *  (r - yRender(p) + 0.5) / particleDiameters(p)) - erf(sqrt8 * (r - yRender(p) - 0.5) / particleDiameters(p))) * ...
+                   (erf( sqrt8 *  (d - zRender(p) + 0.5) / particleDiameters(p)) - erf(sqrt8 * (d - zRender(p) - 0.5) / particleDiameters(p)));
            end
         end
     end    

@@ -9,7 +9,8 @@ function  [IMAGE1, IMAGE2] = generateImagePair_mc(...
 % Generates a series of synthetic particle images that have been
 %   transformed by a specified series of transformation matrices. 
 %
-% The equations used to generate the particles were taken from Equation 16 (on page 5) of the paper
+% The equations used to generate the particles were taken from Equation 16
+% (on page 5) of the paper
 % "Methods for Digital Particle Image Sizing (DPIS): Comparisons and
 % Improvements" (2009) by Michael R. Brady, Samuel G. Raben, Pavlos P.
 % Vlachos, published in the journal Flow Measurement and Instrumentation.

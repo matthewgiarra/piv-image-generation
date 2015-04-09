@@ -78,8 +78,8 @@ SegmentItem.Parameters.ShearY = 1 * [0.01, 0.2];
 SegmentItem.Parameters.Scaling = 1 * [1, 1];
 SegmentItem.Parameters.Noise.Mean = 0.00;
 SegmentItem.Parameters.Noise.Std = 0.00;
-SegmentItem.Parameters.ParticleDiameter.Mean = 10 * [1, 1];
-SegmentItem.Parameters.ParticleDiameter.Std = 0 * [0.00, 0.10];
+SegmentItem.Parameters.ParticleDiameter.Mean = 2.8 * [1, 1];
+SegmentItem.Parameters.ParticleDiameter.Std = 1 * [1.00, 1.00];
 JOBLIST(1) = SegmentItem;
 
 end
