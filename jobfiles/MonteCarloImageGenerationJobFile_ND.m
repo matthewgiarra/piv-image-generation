@@ -5,11 +5,11 @@ regionHeight = 256;
 regionWidth  = 256;
 regionDepth  = 64;
 
-DefaultJob.JobOptions.ParallelProcessing = 0;
+DefaultJob.JobOptions.ParallelProcessing = 1;
 DefaultJob.JobOptions.NumberOfDigits = 6;
 DefaultJob.JobOptions.RotationRangeType = 'lin';
 DefaultJob.JobOptions.RotationAngleUnits = 'rad';
-DefaultJob.JobOptions.RunCompiled = 0;
+DefaultJob.JobOptions.RunCompiled = 1;
 DefaultJob.JobOptions.ReSeed = 1;
 
 DefaultJob.ImageType = 'synthetic';
@@ -62,24 +62,25 @@ DefaultJob.Parameters.BeamPlaneStdDev = 4;
 
 % Case 1
 SegmentItem = DefaultJob;
-SegmentItem.SetType = 'lin';
+SegmentItem.SetType = 'mc';
 SegmentItem.CaseName = '2015-04-07_uncertainty_calibration_images';
-SegmentItem.Parameters.RegionHeight = 64;
-SegmentItem.Parameters.RegionWidth = 64;
-SegmentItem.Parameters.RegionDepth = 64;
-SegmentItem.Parameters.TX =  1 * [0 1];
-SegmentItem.Parameters.TY =  1 * [0 1];
-SegmentItem.Parameters.TZ =  0 * [0 1];
+SegmentItem.Parameters.RegionHeight = 256;
+SegmentItem.Parameters.RegionWidth = 256;
+SegmentItem.Parameters.RegionDepth = 256;
+SegmentItem.Parameters.TX =  1 * [-1 1];
+SegmentItem.Parameters.TY =  1 * [-1 1];
+SegmentItem.Parameters.TZ =  0.4 * 4 * DefaultJob.Parameters.BeamPlaneStdDev * [-1 1];
 SegmentItem.Parameters.Rotation_Z_01 = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Y    = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Z_02 = 0 * pi * [0 1];
 SegmentItem.Parameters.ShearX = 1 * [0.01, 0.2];
 SegmentItem.Parameters.ShearY = 1 * [0.01, 0.2];
 SegmentItem.Parameters.Scaling = 1 * [1, 1];
-SegmentItem.Parameters.Noise.Mean = 0.00;
-SegmentItem.Parameters.Noise.Std = 0.00;
-SegmentItem.Parameters.ParticleDiameter.Mean = 2.8 * [1, 1];
-SegmentItem.Parameters.ParticleDiameter.Std = 1 * [1.00, 1.00];
+SegmentItem.Parameters.ImageNoise.Mean = [0.00, 0.25];
+SegmentItem.Parameters.ImageNoise.StdDev = [0.00, 0.10];
+SegmentItem.Parameters.ParticleDiameter.Mean = 1 * [0.5, 5.0];
+SegmentItem.Parameters.ParticleDiameter.Std = 1  * [0.0, 0.1];
+SegmentItem.Parameters.ParticleConcentration = 1 * [0.01 0.15];
 JOBLIST(1) = SegmentItem;
 
 end

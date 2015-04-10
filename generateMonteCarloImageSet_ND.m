@@ -110,16 +110,22 @@ for n = 1 : nJobs
     % Units of rotation angles (degrees or radians)
     rotation_angle_units = JobFile.JobOptions.RotationAngleUnits;
 
-    % Range of particle concentrations (particles per pixel)
-    concentration = JobFile.Parameters.ParticleConcentration;
-
+    if image_dimensionality == 2
+        % Range of particle concentrations (particles per pixel)
+        concentration = JobFile.Parameters.ParticleConcentration ...
+            / region_depth;
+    else
+        % Range of particle concentrations (particles per pixel)
+        concentration = JobFile.Parameters.ParticleConcentration;
+    end
+    
     % Particle diameter (pixels)
     particle_diameter_std  = JobFile.Parameters.ParticleDiameter.Std;
     particle_diameter_mean = JobFile.Parameters.ParticleDiameter.Mean;
     
     % Noise parameters
-    noiseMean = JobFile.Parameters.Noise.Mean;
-    noiseStd  = JobFile.Parameters.Noise.Std;
+    image_noise_mean = JobFile.Parameters.ImageNoise.Mean;
+    image_noise_std_dev  = JobFile.Parameters.ImageNoise.StdDev;
 
     % Specify explicitly the bounds of the scaling parameter for the Monte
     % Carlo simulation
@@ -193,6 +199,14 @@ for n = 1 : nJobs
     % Specify the bounds of the particle mean diameter
     particle_diameter_mean_i = particle_diameter_mean(1);
     particle_diameter_mean_f = particle_diameter_mean(2);
+    
+    % Specify the bounds of the image noise mean intensity
+    image_noise_mean_i = image_noise_mean(1);
+    image_noise_mean_f = image_noise_mean(2);
+    
+    % Specify the bounds of the image noise standard deviation
+    image_noise_std_dev_i = image_noise_std_dev(1);
+    image_noise_std_dev_f = image_noise_std_dev(2);
 
     % Specify the Image type
     % mc means monte carlo analysis
@@ -265,6 +279,8 @@ for n = 1 : nJobs
             Parameters.TranslationZ = (linspace(TZi, TZf, imagesPerSet))'; 
             Parameters.ParticleDiameterStd = (linspace(particle_diameter_std_i, particle_diameter_std_f, imagesPerSet))';
             Parameters.ParticleDiameterMean = (linspace(particle_diameter_mean_i, particle_diameter_mean_f, imagesPerSet))';
+            Parameters.ImageNoise.Mean = (linspace(image_noise_mean_i, image_noise_mean_f, imagesPerSet))';
+            Parameters.ImageNoise.StdDev = (linspace(image_noise_std_dev_i, image_noise_std_dev_f, imagesPerSet))';
             
             
         % Monte carlo image sets
@@ -279,7 +295,10 @@ for n = 1 : nJobs
             Parameters.ShearX = zeros(imagesPerSet, 1);
             Parameters.ShearY = zeros(imagesPerSet, 1);
             Parameters.ParticleDiameterStd = zeros(imagesPerSet, 1);
+            Parameters.ParticleDiameterMean = zeros(imagesPerSet, 1);
             Parameters.Tforms = zeros(4, 4, imagesPerSet);
+            Parameters.ImageNoise.Mean = zeros(imagesPerSet, 1);
+            Parameters.ImageNoise.StdDev = zeros(imagesPerSet, 1);
             
             % Initialize array for raw rotation angles.
             rotation_angles_raw = zeros(imagesPerSet, 3);
@@ -321,6 +340,14 @@ for n = 1 : nJobs
                 
                 % Random particle diameter standard deviations.
                 Parameters.ParticleDiameterStd(k) = particle_diameter_std_i + (particle_diameter_std_f - particle_diameter_std_i) * rand;
+            
+                % Intensity noise mean
+                Parameters.ImageNoise.Mean(k) = image_noise_mean_i + (image_noise_mean_f - image_noise_mean_i) * rand;
+                
+                % Intensity noise standard deviation
+                Parameters.ImageNoise.StdDev(k) = image_noise_std_dev_i + (image_noise_std_dev_f - image_noise_std_dev_i) * rand;
+                
+            
             end
         end
 
@@ -365,13 +392,7 @@ for n = 1 : nJobs
         Parameters.RotationAngleUnits = rotationAngleUnits;
         Parameters.ParticleDiameterStdRange = particle_diameter_std;
         Parameters.ParticleDiameterMeanRange = particle_diameter_mean;
-        
-        % Save parameters to their own variables to cut down on data transfer with the parallel for loop
-        concentrations = Parameters.Concentration;
-        particle_diameter_std_list = Parameters.ParticleDiameterStd;
-        particle_diameter_mean_list = Parameters.ParticleDiameterMean;
-        tforms = Parameters.Tforms;
-        
+       
         % Don't specify particle diameters here.
         % Instead draw them from a normal distribution
         % whose standard deviation is drawn from a uniform
@@ -382,6 +403,20 @@ for n = 1 : nJobs
         % be hard coded.
         maxVal = double(intmax('uint16'));
 
+        
+        % Save parameters to their own variables to cut down on data transfer with the parallel for loop
+        concentrations = Parameters.Concentration;
+        particle_diameter_mean_list = Parameters.ParticleDiameterMean;
+        
+        % Particle diameter standard deviation as a fraction of
+        % the particle mean diameter
+        particle_diameter_std_list = Parameters.ParticleDiameterStd .* ...
+            particle_diameter_mean_list;
+        tforms = Parameters.Tforms;
+        image_noise_mean_list = Parameters.ImageNoise.Mean;
+        image_noise_std_dev_list = Parameters.ImageNoise.StdDev .* ...
+            image_noise_mean_list;
+        
         % Make noise matrix for the series of first images. 
         % The 2.8 corresponds to the multiple of the standard
         % deviation corresponding to a 99.5% coverage factor.
@@ -390,22 +425,43 @@ for n = 1 : nJobs
         %
         % Pick between 2D and 3D
         switch image_dimensionality
+            
+            % Case of 2D images
             case 2
-                % Create the noise matrix for the list of second images.
-                noiseMatrix1 = noiseMean * maxVal + noiseStd ...
-                * maxVal * ...
-                randn([region_height, region_width, imagesPerSet]);
+                
+                % Allocate the first noise matrix (2D).
+                noiseMatrix1 = zeros(region_height, region_width,...
+                    imagesPerSet);
+                
+                % Populate each array in the noise matrix.
+                for k = 1 : imagesPerSet
+                
+                    % Create the noise matrix for the list of second images.
+                    noiseMatrix1(:, :, k) = ...
+                        image_noise_mean_list(k) * maxVal + ...
+                        image_noise_std_dev_list(k) * maxVal * ...
+                        randn([region_height, region_width]);
+                end
 
             otherwise
-                % Create the noise matrix for the list of second images.
-                noiseMatrix1 = noiseMean * maxVal + noiseStd ...
-                * maxVal * ...
-                randn([region_height, region_width, region_depth,...
-                imagesPerSet]);
+                
+                % Allocate the noise matrix (3D).
+                noiseMatrix1 = zeros(region_height, region_width,...
+                    region_depth, imagesPerSet);
+                
+                % Populate each array in the noise matrix.
+                for k = 1 : imagesPerSet
 
+                    % Create the noise matrix for the list of second images.
+                    noiseMatrix1(:, :, :, k) = ...
+                        image_noise_mean_list(k) * maxVal + ...
+                        image_noise_std_dev_list(k) * maxVal * ...
+                        randn([region_height, region_width, region_depth]);
+
+                end             
         end
         
-        
+
         % Start a timer to measure image generation time
         a = tic;
         
@@ -416,10 +472,21 @@ for n = 1 : nJobs
             % Pick between 2D and 3D
             switch image_dimensionality
                 case 2
-                    % Create the noise matrix for the list of second images.
-                    noiseMatrix2 = noiseMean * maxVal + noiseStd ...
-                        * maxVal * ...
-                        randn([region_height, region_width, imagesPerSet]);
+
+                    % Allocate the second noise matrix (2D).
+                    noiseMatrix2 = zeros(region_height, region_width, ...
+                        imagesPerSet);
+
+                    % Populate each array in the noise matrix.
+                    for k = 1 : imagesPerSet
+
+                        % Create the noise matrix for the list of second images.
+                        noiseMatrix2(:, :, k) = ...
+                            image_noise_mean_list(k) * maxVal + ...
+                            image_noise_std_dev_list(k) * maxVal * ...
+                            randn([region_height, region_width]);
+
+                    end 
                     
                     % Preallocate memory for the two image matrices.
                     imageMatrix1_2D = zeros(region_height, region_width, ...
@@ -432,11 +499,22 @@ for n = 1 : nJobs
                     imageMatrix2_3D = [];
  
                 otherwise
-                    % Create the noise matrix for the list of second images.
-                    noiseMatrix2 = noiseMean * maxVal + noiseStd ...
-                        * maxVal * ...
-                        randn([region_height, region_width, region_depth,...
-                        imagesPerSet]);
+                    
+                    % Allocate the second noise matrix (3D)
+                    noiseMatrix2 = zeros(region_height, region_width, ...
+                        regionDepth, imagesPerSet);
+
+                    % Populate each array in the noise matrix.
+                    for k = 1 : imagesPerSet
+
+                        % Create the noise matrix for the list of second images.
+                        noiseMatrix2(:, :, :, k) = ...
+                            image_noise_mean_list(k) * maxVal + ...
+                            image_noise_std_dev_list(k) * maxVal * ...
+                            randn([region_height, region_width, region_depth]);
+
+                    end 
+                    
                     
                     % Preallocate memory for the two image matrices.
                     imageMatrix1_3D = zeros(region_height, region_width, ...
@@ -540,18 +618,20 @@ for n = 1 : nJobs
                     
                 end 
                 
-                % Save the image matrices to the output variables.
-                switch image_dimensionality
-                    case 2
-                        imageMatrix1 = imageMatrix1_2D;
-                        imageMatrix2 = imageMatrix2_2D;
-                    otherwise
-                        imageMatrix1 = imageMatrix1_3D;
-                        imageMatrix2 = imageMatrix2_3D;
-                end  
+
                 
             end
             
+            % Save the image matrices to the output variables.
+            switch image_dimensionality
+                case 2
+                    imageMatrix1 = imageMatrix1_2D;
+                    imageMatrix2 = imageMatrix2_2D;
+                otherwise
+                    imageMatrix1 = imageMatrix1_3D;
+                    imageMatrix2 = imageMatrix2_3D;
+            end  
+
         % Generate images in the linear-progression sense.
         % This statement is accessed when reSeed == 0;
         
