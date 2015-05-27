@@ -26,8 +26,8 @@ imagePlaceholder = zeros(HEIGHT, WIDTH);
 % Only render particles whose intensities are above some threshold,
 % which we specify here as the value of a zero-mean Gaussian function
 % at two standard deviations (so that the "width" of a symmetric 
-% Gaussian beam is four times the beam's standard deviation).
-cutoff_intensity = exp(-2);
+% Gaussian beam is eight times the beam's standard deviation).
+cutoff_intensity = exp(-4);
 
 % Determine which particles to render. Only render particles whose images lie
 % within the image domain.
