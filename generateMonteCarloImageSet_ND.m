@@ -408,10 +408,8 @@ for n = 1 : nJobs
         concentrations = Parameters.Concentration;
         particle_diameter_mean_list = Parameters.ParticleDiameterMean;
         
-        % Particle diameter standard deviation as a fraction of
-        % the particle mean diameter
-        particle_diameter_std_list = Parameters.ParticleDiameterStd .* ...
-            particle_diameter_mean_list;
+        % Particle diameter standard deviation
+        particle_diameter_std_list = Parameters.ParticleDiameterStd;
         tforms = Parameters.Tforms;
         image_noise_mean_list = Parameters.ImageNoise.Mean;
         image_noise_std_dev_list = Parameters.ImageNoise.StdDev .* ...
