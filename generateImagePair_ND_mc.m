@@ -197,11 +197,11 @@ end
 
 
 % Convert the first image to 16 bit and save it to the output variable.
-IMAGE_01 = uint16( (2^16 - 1) .* ...
+IMAGE_01 = ( (2^16 - 1) .* ...
     Image1Cropped .* 2.8 ^ 2 / PARTICLE_DIAMETER_MEAN ^ 2);
 
 % Convert the second image to 16 bit and save it to the output variable.
-IMAGE_02 = uint16( (2^16 - 1) .* Image2Cropped .* ...
+IMAGE_02 = ( (2^16 - 1) .* Image2Cropped .* ...
     2.8 ^ 2 ./ PARTICLE_DIAMETER_MEAN ^ 2);
 
 
