@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "velocity_functions.h"
+#include "image_writing.h"
+#include "tiffio.h"
 
 // #include "myfunctions.h"
 
@@ -52,17 +54,23 @@ int main(int argc, char * argv[]){
 	// Array size
 	int array_length = atoi(argv[1]);
 	
+	// Image dimensions
+	const int image_height = 1024;
+	const int image_width = 1024;
+	
+	// Coordinate system origin
+	const double yc = image_height / 2;
+	const double zc = 0;
+	const double h = image_height / 2;
+	
+	// Max velocity 
+	const double v_max = 20;
+	
 	//Allocate the array
 	double *x 	  = (double*) malloc(array_length * sizeof(double));
 	double *y 	  = (double*) malloc(array_length * sizeof(double));
 	double *z 	  = (double*) malloc(array_length * sizeof(double));
 	double *x_new = (double*) malloc(array_length * sizeof(double));
-	
-	// Channel height
-	double h = 1;
-	
-	// Max velocity 
-	double v_max = 10;
 	
 	// Error handling
 	if(!x){
@@ -89,18 +97,66 @@ int main(int argc, char * argv[]){
 	}
 	
 	// Pass array to the random number generator
-	devrand(x, array_length, -1, 1);
-	devrand(y, array_length, -1, 1);
+	devrand(x, array_length, 0, image_width - 1);
+	devrand(y, array_length, 0, image_height - 1);
 	devrand(z, array_length, -1, 1);
-		
+			
 	// Advect positions
-	poiseuille(x, y, z, x_new, h, v_max, array_length);
+	poiseuille(x, y, z, x_new, yc, zc, h, v_max, array_length);
 	
 	// Free the array
 	free(x);
 	free(y);
 	free(z);
 	free(x_new);
+	
+	// Create the file path to the saved image.
+	std::string output_file_path_string_01 = "/Users/matthewgiarra/Desktop/image_01.tiff";
+	// Create the file path to the saved image.
+	std::string output_file_path_string_02 = "/Users/matthewgiarra/Desktop/image_02.tiff";
+	
+	// Specify a file path
+	char *output_file_path_01 = (char*)output_file_path_string_01.c_str();
+	char *output_file_path_02 = (char*)output_file_path_string_02.c_str();
+
+	// Allocate memory for a 16-bit "slice" which will hold the image data.
+	uint16_t *slice = new uint16_t[image_height * image_width];
+	
+	// Allocate memory for a linear index.
+	int *linear_ind = (int*) malloc(sizeof(int));
+	
+	for(int k = 0; k < array_length; k ++){
+		if((int)x[k] < image_width){
+			// Calculate a linear index
+			sub2ind(image_width, (int)y[k], (int)x[k], linear_ind);		
+		
+			// Set the pixel to white 
+			slice[*linear_ind] = pow(2, 16) - 1;
+		}
+	}
+		
+	// Write a tiff image.
+	writeTiff_bw16(output_file_path_01, slice, image_height, image_width);
+	
+	// Zero the slice
+	for(int k = 0; k < image_height * image_width - 1; k ++){
+		slice[k] = 0;
+	}
+	
+	for(int k = 0; k < array_length; k ++){
+		
+		if((int)x_new[k] < image_width){
+			// Calculate a linear index
+			sub2ind(image_width, (int)y[k], (int)x_new[k], linear_ind);		
+		
+			// Set the pixel to white 
+			slice[*linear_ind] = pow(2, 16) - 1;
+		}
+		
+	}
+		
+	// Write a tiff image.
+	writeTiff_bw16(output_file_path_02, slice, image_height, image_width);
 	
 	// GTFO
 	return(0);
