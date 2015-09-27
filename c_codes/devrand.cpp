@@ -4,21 +4,18 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+#include "velocity_functions.h"
+
 // #include "myfunctions.h"
 
-void devrand(double *array, int array_length) {
+void devrand(double *array, int array_length, double lower_bound, double upper_bound) {
 
 	// Initialize some variables
 	FILE *urandom; // This will hold the file /dev/urandom
 	unsigned int seed; // Random number seed
 	
 	int k; // Counter for loops
-	int lower_bound = 0;
-	int upper_bound = 100;
 
-	// Inform the user
-	std::cout << "Lower bound = " << lower_bound << ", upper bound = " << upper_bound << "\n";	
-		
 	// Open the /urandom file for reading.
 	urandom = fopen("/dev/urandom", "r");
 
@@ -44,40 +41,69 @@ void devrand(double *array, int array_length) {
 		array[k] = rand() / (double)RAND_MAX * (upper_bound - lower_bound) + lower_bound ;
 	}
 	
-	// Print the numbers
-	std::cout << "Last number in array (internal function): \n";
-	printf("%06.6f\n", array[array_length-1]); 
-
 }
 
 // Main function
 int main(int argc, char * argv[]){
 	
+	// Function prototype
+	// void plane_poiseuille(double *x, double *y, double *x_new, double h, double num_points);
+	//
 	// Array size
 	int array_length = atoi(argv[1]);
 	
 	//Allocate the array
-	double *array = (double*) malloc(array_length * sizeof(double));
+	double *x 	  = (double*) malloc(array_length * sizeof(double));
+	double *y 	  = (double*) malloc(array_length * sizeof(double));
+	double *z 	  = (double*) malloc(array_length * sizeof(double));
+	double *x_new = (double*) malloc(array_length * sizeof(double));
+	
+	// Channel height
+	double h = 1;
+	
+	// Max velocity 
+	double v_max = 10;
 	
 	// Error handling
-	if(!array){
-		std::cout << "Error: failed to allocate array.\n";
+	if(!x){
+		std::cout << "Error: failed to allocate array x.\n";
+		return(-1);
+	}
+	
+	// Error handling
+	if(!y){
+		std::cout << "Error: failed to allocate array y.\n";
+		return(-1);
+	}
+	
+	// Error handling
+	if(!z){
+		std::cout << "Error: failed to allocate array z.\n";
+		return(-1);
+	}
+	
+	// Error handling
+	if(!x_new){
+		std::cout << "Error: failed to allocate array x_new.\n";
 		return(-1);
 	}
 	
 	// Pass array to the random number generator
-	devrand(array, array_length);
-	
-	// Print the numbers
-	std::cout << "\n\nReading last number in array (from memory):\n";
-	printf("%06.6f\n", array[array_length-1]); 
+	devrand(x, array_length, -1, 1);
+	devrand(y, array_length, -1, 1);
+	devrand(z, array_length, -1, 1);
+		
+	// Advect positions
+	poiseuille(x, y, z, x_new, h, v_max, array_length);
 	
 	// Free the array
-	free(array);
+	free(x);
+	free(y);
+	free(z);
+	free(x_new);
 	
 	// GTFO
 	return(0);
-	
 }
 
 
