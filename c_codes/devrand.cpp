@@ -97,19 +97,13 @@ int main(int argc, char * argv[]){
 	}
 	
 	// Pass array to the random number generator
-	devrand(x, array_length, 0, image_width - 1);
-	devrand(y, array_length, 0, image_height - 1);
+	devrand(x, array_length, -image_width, image_width - 1);
+	devrand(y, array_length, -image_height, image_height - 1);
 	devrand(z, array_length, -1, 1);
 			
 	// Advect positions
 	poiseuille(x, y, z, x_new, yc, zc, h, v_max, array_length);
-	
-	// Free the array
-	free(x);
-	free(y);
-	free(z);
-	free(x_new);
-	
+		
 	// Create the file path to the saved image.
 	std::string output_file_path_string_01 = "/Users/matthewgiarra/Desktop/image_01.tiff";
 	// Create the file path to the saved image.
@@ -126,7 +120,7 @@ int main(int argc, char * argv[]){
 	int *linear_ind = (int*) malloc(sizeof(int));
 	
 	for(int k = 0; k < array_length; k ++){
-		if((int)x[k] < image_width){
+		if((int)x[k] < image_width && (int)x[k] >= 0 && (int)y[k] < image_height && (int)y[k] >=0){
 			// Calculate a linear index
 			sub2ind(image_width, (int)y[k], (int)x[k], linear_ind);		
 		
@@ -145,7 +139,7 @@ int main(int argc, char * argv[]){
 	
 	for(int k = 0; k < array_length; k ++){
 		
-		if((int)x_new[k] < image_width){
+		if((int)x_new[k] < image_width && (int)x_new[k] >= 0 && (int)y[k] < image_height && (int)y[k] >=0){
 			// Calculate a linear index
 			sub2ind(image_width, (int)y[k], (int)x_new[k], linear_ind);		
 		
@@ -157,6 +151,12 @@ int main(int argc, char * argv[]){
 		
 	// Write a tiff image.
 	writeTiff_bw16(output_file_path_02, slice, image_height, image_width);
+	
+	// Free the array
+	free(x);
+	free(y);
+	free(z);
+	free(x_new);
 	
 	// GTFO
 	return(0);
