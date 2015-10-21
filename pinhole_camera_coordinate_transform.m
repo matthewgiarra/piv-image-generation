@@ -16,10 +16,10 @@ array_length = numel(x_world);
 world_coordinates = [(x_world(:))'; (y_world(:))'; (z_world(:))'; ones(1, array_length)];
 
 % Homogeneous camera coordinates
-camera_coordinates = camera_matrix * world_coordinates;
+camera_coordinates = (camera_matrix * world_coordinates)';
 
 % Camera coordinates
-x_cam = camera_coordinates(1, :) ./ camera_coordinates(3, :);
-y_cam = camera_coordinates(2, :) ./ camera_coordinates(3, :);
+x_cam = camera_coordinates(:, 1) ./ camera_coordinates(:, 3);
+y_cam = camera_coordinates(:, 2) ./ camera_coordinates(:, 3);
 
 end

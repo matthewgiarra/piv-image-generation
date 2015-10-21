@@ -25,6 +25,16 @@ for n = 1 : nJobs
     
     % Read the jobfile from the job list
     JobFile = JOBLIST(n);
+	
+	% World domain
+	world_domain_x = JobFile.Parameters.Domain.X;
+	world_domain_y = JobFile.Parameters.Domain.Y;
+	world_domain_z = JobFile.Parameters.Domain.Z;
+	
+	% World domain array. The vectorization and transpose operations here
+	% ensure that the array is formatted properly, with each 
+	% row cooresponding to a different coordinate
+	world_domain = [(world_domain_x(:))'; (world_domain_y(:))'; (world_domain_z(:))'];
 
     % Image Repository. This is line specifies where the image folders will be saved. 
     projectRepository = JobFile.ProjectRepository;
@@ -112,14 +122,8 @@ for n = 1 : nJobs
     % Units of rotation angles (degrees or radians)
     rotation_angle_units = JobFile.JobOptions.RotationAngleUnits;
 
-    if image_dimensionality == 2
-        % Range of particle concentrations (particles per pixel)
-        concentration = JobFile.Parameters.ParticleConcentration ...
-            / region_depth;
-    else
-        % Range of particle concentrations (particles per pixel)
-        concentration = JobFile.Parameters.ParticleConcentration;
-    end
+	% Particle concentration
+	concentration = JobFile.Parameters.ParticleConcentration;
     
     % Particle diameter (pixels)
     particle_diameter_std  = JobFile.Parameters.ParticleDiameter.Std;
@@ -128,6 +132,9 @@ for n = 1 : nJobs
     % Noise parameters
     image_noise_mean = JobFile.Parameters.ImageNoise.Mean;
     image_noise_std_dev  = JobFile.Parameters.ImageNoise.StdDev;
+	
+	% Camera parameters
+	camera_parameters = calculate_camera_parameters(JobFile.Parameters.Cameras);
 
     % Specify explicitly the bounds of the scaling parameter for the Monte
     % Carlo simulation
@@ -192,6 +199,8 @@ for n = 1 : nJobs
     % Specify explicitly the bounds of the particle concentration parameter
     Conci = concentration(1);
     Concf = concentration(2);
+	
+	
     
     % Specify explicitly the bounds of the particle diameter standard
     % deviation 
@@ -394,7 +403,7 @@ for n = 1 : nJobs
         Parameters.RotationAngleUnits = rotationAngleUnits;
         Parameters.ParticleDiameterStdRange = particle_diameter_std;
         Parameters.ParticleDiameterMeanRange = particle_diameter_mean;
-       
+	   
         % Don't specify particle diameters here.
         % Instead draw them from a normal distribution
         % whose standard deviation is drawn from a uniform
@@ -531,17 +540,28 @@ for n = 1 : nJobs
             % In the case of parallel processing ...
             if parallel_processing
                 % Parallel processing
-                parfor k = 1 : imagesPerSet % Parallel loop over all the images
+                for k = 1 : imagesPerSet % Parallel loop over all the images
 
-                  % Generate the image pairs.
-                    [image_01, image_02] = generateImagePair_ND_mc( ...
-                        region_height, region_width, region_depth,  ...
-                        particle_diameter_mean_list(k), ...
-                        particle_diameter_std_list(k), ...
-                        concentrations(k), beam_plane_std_dev,...
-                        tforms(:, :, k), image_dimensionality, ...
-                        run_compiled);
-                    
+                  % % Generate the image pairs.
+                  %   [image_01, image_02] = generateImagePair_ND_mc( ...
+                  %       region_height, region_width, region_depth,  ...
+                  %       particle_diameter_mean_list(k), ...
+                  %       particle_diameter_std_list(k), ...
+                  %       concentrations(k), beam_plane_std_dev,...
+                  %       tforms(:, :, k), image_dimensionality, ...
+                  %       run_compiled);
+				
+	                    % Generate the image pairs.
+	                      [image_01, image_02] = generateImagePair_2D_pinhole_mc( ...
+	                          world_domain,  ...
+	                          particle_diameter_mean_list(k), ...
+	                          particle_diameter_std_list(k), ...
+	                          concentrations(k), beam_plane_std_dev,...
+	                          tforms(:, :, k), camera_parameters, ...
+	                          run_compiled);
+							  
+							  % keyboa
+						
                     switch image_dimensionality
                         case 2
                                                     

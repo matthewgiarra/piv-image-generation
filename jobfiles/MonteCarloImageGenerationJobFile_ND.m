@@ -43,7 +43,7 @@ DefaultJob.Parameters.ShearX = 1 * [1, 1];
 DefaultJob.Parameters.ShearY = 1 * [1, 1];
 
 % Range of particle concentrations (particles per pixel)
-DefaultJob.Parameters.ParticleConcentration = 0.002 * [1 1];
+DefaultJob.Parameters.ParticleConcentration = 1000 * [1 1];
 
 % Particle diameter (pixels)
 DefaultJob.Parameters.ParticleDiameter.Mean = sqrt(8);
@@ -57,30 +57,38 @@ DefaultJob.Parameters.Noise.Std = 0.05;
 DefaultJob.Parameters.ImageDimensionalitiy = 2;
 
 % Standard deviation of the simulated Gaussian beam profile
-% in the Z-direction.
-DefaultJob.Parameters.BeamPlaneStdDev = 4;
+% in the Z-direction (world coordinates).
+DefaultJob.Parameters.BeamPlaneStdDev = 1E-2;
+
+% Camera parameters
+DefaultJob.Parameters.Cameras = default_camera_parameters();
+
+% Domain
+DefaultJob.Parameters.Domain.X = 1 * [-1, 1];
+DefaultJob.Parameters.Domain.Y = 1 * [-1, 1];
+DefaultJob.Parameters.Domain.Z = 0.0 * [0.9, 1.1];
 
 % Case 1
 SegmentItem = DefaultJob;
 SegmentItem.SetType = 'mc';
-SegmentItem.CaseName = '2015-04-07_uncertainty_calibration_images';
-SegmentItem.Parameters.RegionHeight = 256;
-SegmentItem.Parameters.RegionWidth = 256;
+SegmentItem.CaseName = '2015-10-20_pinhole_test';
+SegmentItem.Parameters.RegionHeight = 1024;
+SegmentItem.Parameters.RegionWidth  = 1280;
 SegmentItem.Parameters.RegionDepth = 256;
-SegmentItem.Parameters.TX =  1 * [-1 1];
-SegmentItem.Parameters.TY =  1 * [-1 1];
-SegmentItem.Parameters.TZ =  0.4 * 4 * DefaultJob.Parameters.BeamPlaneStdDev * [-1 1];
+SegmentItem.Parameters.TX =  0.00 * [1 1];
+SegmentItem.Parameters.TY =  0 * [1 1];
+SegmentItem.Parameters.TZ =  0.1 * [1 1];
 SegmentItem.Parameters.Rotation_Z_01 = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Y    = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Z_02 = 0 * pi * [0 1];
-SegmentItem.Parameters.ShearX = 1 * [0.01, 0.2];
-SegmentItem.Parameters.ShearY = 1 * [0.01, 0.2];
+SegmentItem.Parameters.ShearX = 0 * [0.01, 0.2];
+SegmentItem.Parameters.ShearY = 0 * [0.01, 0.2];
 SegmentItem.Parameters.Scaling = 1 * [1, 1];
 SegmentItem.Parameters.ImageNoise.Mean = [0.00, 0.25];
 SegmentItem.Parameters.ImageNoise.StdDev = [0.00, 0.10];
-SegmentItem.Parameters.ParticleDiameter.Mean = 1 * [0.5, 5.0];
-SegmentItem.Parameters.ParticleDiameter.Std = 1  * [0.0, 0.1];
-SegmentItem.Parameters.ParticleConcentration = 1 * [0.01 0.15];
+SegmentItem.Parameters.ParticleDiameter.Mean = sqrt(8) * [1, 1];
+SegmentItem.Parameters.ParticleDiameter.Std = 0  * [1, 1];
+SegmentItem.Parameters.ParticleConcentration = 1E4 * [1, 1];
 JOBLIST(1) = SegmentItem;
 
 end

@@ -17,12 +17,16 @@ tz = 2.0 * [1, 1, 1];
 f = 0.028 * [1, 1, 1];
 
 % Sensor sizes (mm)
-sensor_width  = 1.74 * 1E-2 * [1, 1, 1];
-sensor_height = 1.74 * 1E-2 * [1, 1, 1];
+sensor_width_world  = 1.74 * 1E-2 * [1, 1, 1];
+sensor_height_world = 1.74 * 1E-2 * [1, 1, 1];
 
 % Pixel sizes
-pixel_height = 1.7E-5 * [1, 1, 1];
-pixel_width = 1.7E-5 * [1, 1, 1];
+pixel_height_world = 1.7E-5 * [1, 1, 1];
+pixel_width_world = 1.7E-5 * [1, 1, 1];
+
+% Numbers of pixels
+image_rows = 1024 * [1, 1, 1];
+image_cols = 1280 * [1, 1, 1];
 
 % Error check the number of cameras.
 num_cameras = min([n_cameras, length(rx), length(ry), length(rz),...
@@ -40,10 +44,12 @@ for k = 1 : num_cameras
 	Parameters.Cameras(k).Extrinsic.Translation.Z = tz(k);
 
 	Parameters.Cameras(k).Intrinsic.FocalLength = f(k);
-	Parameters.Cameras(k).Intrinsic.Sensor.Width = sensor_width(k);
-	Parameters.Cameras(k).Intrinsic.Sensor.Height = sensor_width(k);
-	Parameters.Cameras(k).Intrinsic.Pixel.Height = pixel_height(k);
-	Parameters.Cameras(k).Intrinsic.Pixel.Width = pixel_width(k);
+	Parameters.Cameras(k).Intrinsic.Sensor.Width = sensor_width_world(k);
+	Parameters.Cameras(k).Intrinsic.Sensor.Height = sensor_height_world(k);
+	Parameters.Cameras(k).Intrinsic.Pixel.Height = pixel_height_world(k);
+	Parameters.Cameras(k).Intrinsic.Pixel.Width = pixel_width_world(k);
+	Parameters.Cameras(k).Intrinsic.Pixel.Number.Rows = image_rows(k);
+	Parameters.Cameras(k).Intrinsic.Pixel.Number.Columns = image_cols(k);
 end
 
 % Calculate and display particle positions
