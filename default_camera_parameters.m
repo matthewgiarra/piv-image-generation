@@ -1,7 +1,7 @@
 function CAMERA_PARAMETERS = default_camera_parameters();
 
 	% Number of cameras
-	n_cameras = 3;
+	n_cameras = 1;
 
 	% Distance from camera arrangement centroid to the target plane.
 	L = 1;
@@ -12,24 +12,28 @@ function CAMERA_PARAMETERS = default_camera_parameters();
 	rz = 0 * ones(n_cameras, 1);
 
 	% Camera positions
-	tx = 0.1 * [0, -1, 1];
-	ty = 0.1 * [1, -1, -1];
-	tz = L   * [1, 1, 1];
+% 	tx = 0.1 * [0, -1, 1];
+% 	ty = 0.1 * [1, -1, -1];
+% 	tz = L * ones(n_cameras, 1);
 
+	tx = 0.0;
+	ty = 0.0;
+	tz = L   * ones(n_cameras, 1);
+	
 	% Camera focal lengths
 	f = 0.028 * ones(n_cameras, 1);
 
-	% Sensor sizes (world units, like mm)
-	sensor_width_world  = 1.74 * 1E-2 * ones(n_cameras, 1);;
-	sensor_height_world = 1.74 * 1E-2 * ones(n_cameras, 1);;
+	% Numbers of pixels
+	image_rows = 128 * ones(n_cameras, 1);
+	image_cols = 128 * ones(n_cameras, 1);
 
 	% Pixel sizes (world units)
-	pixel_height_world = 1.7E-5 * ones(n_cameras, 1);;
-	pixel_width_world = 1.7E-5 * ones(n_cameras, 1);;
-
-	% Numbers of pixels
-	image_rows = 512 * ones(n_cameras, 1);;
-	image_cols = 512 * ones(n_cameras, 1);;
+	pixel_height_world = 1.7E-5 * ones(n_cameras, 1);
+	pixel_width_world = 1.7E-5 * ones(n_cameras, 1);
+	
+	% Sensor sizes (world units, like mm)
+	sensor_width_world  = image_cols .* pixel_width_world;
+	sensor_height_world = image_rows .* pixel_height_world;
 
 	% Error check the number of cameras.
 	num_cameras = min([n_cameras, length(rx), length(ry), length(rz),...

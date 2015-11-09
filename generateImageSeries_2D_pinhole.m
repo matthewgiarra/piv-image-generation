@@ -1,4 +1,4 @@
-function [IMAGE_01, IMAGE_02] = generateImagePair_2D_pinhole_mc(WORLD_DOMAIN, PARTICLE_DIAMETER_MEAN, ...
+function [imageMatrix1, imageMatrix2] = generateImageSeries_2D_pinhole(WORLD_DOMAIN, PARTICLE_DIAMETER_MEAN, ...
     PARTICLE_DIAMETER_STD, PARTICLE_CONCENTRATION, BEAM_PLANE_CENTER_WORLD_Z, BEAM_PLANE_STD_DEV, ...
     PARTICLE_TRANSFORMATION_MATRIX, CAMERA_PARAMETERS, RUN_COMPILED)
 %[IMAGE_01, IMAGE_02] = generateImagePair_ND_mc(IMAGE_HEIGHT, ...
@@ -66,14 +66,25 @@ function [IMAGE_01, IMAGE_02] = generateImagePair_2D_pinhole_mc(WORLD_DOMAIN, PA
 % BEGIN FUNCTION %
 % % % % % % % % % 
 
+% Particle transforms
+tforms = PARTICLE_TRANSFORMATION_MATRIX;
+
+% Number of images to generate
+num_images = size(tforms, 3);
+
+% Count the number of cameras
+num_cameras = CAMERA_PARAMETERS.NumberOfCameras;
+
+% Image width and height in pixels
+% Currently these are forced to all be the same so that they can be added
+image_height_pixels = CAMERA_PARAMETERS.Cameras(1).Intrinsic.Pixel.Number.Rows;
+image_width_pixels  = CAMERA_PARAMETERS.Cameras(1).Intrinsic.Pixel.Number.Columns;
+
 % Double the height, width, and depth of the images so that rotations don't cause
 % cropping.
 world_domain_x = WORLD_DOMAIN(1, :);
 world_domain_y = WORLD_DOMAIN(2, :);
 world_domain_z = WORLD_DOMAIN(3, :);
-
-% Count the number of cameras
-num_cameras = CAMERA_PARAMETERS.NumberOfCameras;
 
 % Domain limits
 % X coordinate limits (l = lower limit, u = upper limit)
@@ -98,77 +109,110 @@ domain_width * domain_height * domain_depth);
 
 % num_particles = 1000;
 
+% Reference plane distance
+L = CAMERA_PARAMETERS.TargetPlaneDistance;
+
 % Randomly generate the world coordinates of particles
 % Generate horizontal locations of particles in first image (column vector)
 X1 = xl + (xu  - xl) * rand(num_particles, 1);
 Y1 = yl + (yu  - yl) * rand(num_particles, 1);
 Z1 = zl + (zu  - zl) * rand(num_particles, 1);
 
-% Transform the particle coordinates
-[Y2, X2, Z2] = transformImageCoordinates_3D(PARTICLE_TRANSFORMATION_MATRIX, ...
-    X1, Y1, Z1, [0, 0, 0]);
-	
 % Create a normal distribution of particle diameters
 % Need to change this to be something physical!!!
 particle_diameters = repmat(abs(PARTICLE_DIAMETER_STD * randn(num_particles, 1) ...
     + PARTICLE_DIAMETER_MEAN), [num_cameras, 1]);
 
-% Gaussian Function that expresses the intensity distribution of the 
-% particle image on the "sensor" This is set to 1 for now since the 
-% depth-positions of the particles are known for 3D rendering.
-% particleMaxIntensities = ones(num_particles, 1);
+	% Vectors of positions for debugging stuff
+x_cam_01 = zeros(num_particles, num_cameras);
+y_cam_01 = zeros(num_particles, num_cameras);
+x_cam_02 = zeros(num_particles, num_cameras);
+y_cam_02 = zeros(num_particles, num_cameras);
 
-% % Set the particle max intensities to be proportional to the
-% % Gaussian intensity profile of the beam
-particleMaxIntensities_01 = repmat(exp(-(Z1 - BEAM_PLANE_CENTER_WORLD_Z).^2 ./ ...
-    (2 * BEAM_PLANE_STD_DEV ^ 2)), [num_cameras, 1]);
-
+% Allocate the camera images
+imageMatrix1 = zeros(image_height_pixels, image_width_pixels, 1);
+imageMatrix2 = zeros(image_height_pixels, image_width_pixels, num_images);
+		
 % Set the particle max intensities to be proportional to the
 % Gaussian intensity profile of the beam
-particleMaxIntensities_02 = repmat(exp(-(Z2 - BEAM_PLANE_CENTER_WORLD_Z).^2 ./ ...
+particleMaxIntensities = repmat(exp(-(Z1 - BEAM_PLANE_CENTER_WORLD_Z).^2 ./ ...
     (2 * BEAM_PLANE_STD_DEV ^ 2)), [num_cameras, 1]);
-
-
-% Fix the brightness
-% particleMaxIntensities_01 = ones(num_cameras * num_particles, 1);
-% particleMaxIntensities_02 = ones(num_cameras * num_particles, 1);
 	
-% Image width and height in pixels
-% Currently these are forced to all be the same so that they can be added
-image_height_pixels = CAMERA_PARAMETERS.Cameras(1).Intrinsic.Pixel.Number.Rows;
-image_width_pixels  = CAMERA_PARAMETERS.Cameras(1).Intrinsic.Pixel.Number.Columns;
-
-% Vectors of positions for debugging stuff
-x_vect_01 = zeros(num_particles, num_cameras);
-y_vect_01 = zeros(num_particles, num_cameras);
-x_vect_02 = zeros(num_particles, num_cameras);
-y_vect_02 = zeros(num_particles, num_cameras);
-
-% Make a plot of particle positions
-plot_colors = 'krbgcmy';
-
-% Plot marker
-plot_marker = '.';
-
-
 % Generate the particle positions in the coordinate system of each camera
-for k = 1 : num_cameras
-	
+for c = 1 : num_cameras
+
 	% Read the camera matrix
-	camera_matrix = CAMERA_PARAMETERS.Cameras(k).Camera_Matrix;
-	
+	camera_matrix = CAMERA_PARAMETERS.Cameras(c).Camera_Matrix;
+
 	% Calculate image coordinates of each particle (pixel coordinates)
-	[x_cam_01, y_cam_01] = pinhole_camera_coordinate_transform(X1, Y1, Z1, camera_matrix);
-	[x_cam_02, y_cam_02] = pinhole_camera_coordinate_transform(X2, Y2, Z2, camera_matrix);
-	
-	x_vect_01(:, k) = x_cam_01;
-	y_vect_01(:, k) = y_cam_01;
-	
-	x_vect_02(:, k) = x_cam_02;
-	y_vect_02(:, k) = y_cam_02;
+	[x_cam(:, c), y_cam(:, c)] = pinhole_camera_coordinate_transform(X1, Y1, Z1, camera_matrix);
+
+end
+
+% Render the images
+if RUN_COMPILED
+
+	% Generate the first image. Add the intensities to any already generated images.
+	imageMatrix1 = generateParticleImage_mex(image_height_pixels, image_width_pixels, ...
+		x_cam(:), y_cam(:), particle_diameters, particleMaxIntensities);
+
+else
+
+	% Generate the first image. Add the intensities to any already generated images.
+	imageMatrix1 = generateParticleImage(image_height_pixels, image_width_pixels, ...
+		x_cam(:), y_cam(:), particle_diameters, particleMaxIntensities);
 	
 end
 
+% Image matrix 2
+for n = 1 : num_images
+	
+	% Inform the user
+	fprintf('Generating image %d of %d...\n', n, num_images);
+	
+	% Transform the particle coordinates
+	[Y2, X2, Z2] = transformImageCoordinates_3D(tforms(:, :, n), ...
+	    X1, Y1, Z1, [0, 0, 0]);
+		
+	% Set the particle max intensities to be proportional to the
+	% Gaussian intensity profile of the beam
+	particleMaxIntensities = repmat(exp(-(Z2 - BEAM_PLANE_CENTER_WORLD_Z).^2 ./ ...
+	    (2 * BEAM_PLANE_STD_DEV ^ 2)), [num_cameras, 1]);
+		
+    % Generate the particle positions in the coordinate system of each camera
+    for c = 1 : num_cameras
+
+        % Read the camera matrix
+        camera_matrix = CAMERA_PARAMETERS.Cameras(c).Camera_Matrix;
+
+        % Calculate image coordinates of each particle (pixel coordinates)
+        [x_cam(:, c), y_cam(:, c)] = pinhole_camera_coordinate_transform(X2, Y2, Z2, camera_matrix);
+
+    end    
+    
+	
+    % Render the images
+    if RUN_COMPILED
+
+        % Generate the first image. Add the intensities to any already generated images.
+        imageMatrix2(:, :, n) = generateParticleImage_mex(image_height_pixels, image_width_pixels, ...
+        x_cam(:), y_cam(:), particle_diameters, particleMaxIntensities);
+
+    else
+
+        % Generate the first image. Add the intensities to any already generated images.
+        imageMatrix2(:, :, n) = generateParticleImage(image_height_pixels, image_width_pixels, ...
+        x_cam(:), y_cam(:), particle_diameters, particleMaxIntensities);
+
+    end
+   
+	
+end
+
+% Make a plot of particle positions
+% plot_colors = 'krbgcmy';
+% Plot marker
+% plot_marker = '.';
 % figure(1);
 % subplot(1, 2, 1);
 % hold off;
@@ -204,39 +248,15 @@ end
 % end
 % hold off
 % axis image
-	
-% Render the images
-if RUN_COMPILED
-	
-	% Generate the first image. Add the intensities to any already generated images.
-	particle_image_01 = generateParticleImage_mex(image_height_pixels, image_width_pixels, ...
-		x_vect_01(:), y_vect_01(:), particle_diameters, particleMaxIntensities_01);
-	
-	% Generate the first image. Add the intensities to any already generated images.
-	particle_image_02 = generateParticleImage_mex(image_height_pixels, image_width_pixels, ...
-		x_vect_02(:), y_vect_02(:), particle_diameters, particleMaxIntensities_02);
-	
-else
-	
-	% Generate the first image. Add the intensities to any already generated images.
-	particle_image_01 = generateParticleImage(image_height_pixels, image_width_pixels, ...
-		x_vect_01(:), y_vect_01(:), particle_diameters, particleMaxIntensities_01);
-	
-	% Generate the first image. Add the intensities to any already generated images.
-	particle_image_02 = generateParticleImage(image_height_pixels, image_width_pixels, ...
-		x_vect_02(:), y_vect_02(:), particle_diameters, particleMaxIntensities_02);
-		
-end
-	
-
 
 % Convert the first image to 16 bit and save it to the output variable.
-IMAGE_01 = ( (2^16 - 1) .* particle_image_01 .* ...
+imageMatrix1 = ( (2^16 - 1) * imageMatrix1 * ...
 2.8 ^ 2 / PARTICLE_DIAMETER_MEAN ^ 2);
 
 % Convert the second image to 16 bit and save it to the output variable.
-IMAGE_02 = ( (2^16 - 1) .* particle_image_02 .* ...
-    2.8 ^ 2 ./ PARTICLE_DIAMETER_MEAN ^ 2);
+imageMatrix2 = ( (2^16 - 1) * imageMatrix2 * ...
+    2.8 ^ 2 / PARTICLE_DIAMETER_MEAN ^ 2);
+
 
 end % End of function
 

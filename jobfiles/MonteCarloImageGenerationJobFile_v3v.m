@@ -5,13 +5,13 @@ regionHeight = 256;
 regionWidth  = 256;
 regionDepth  = 64;
 
-DefaultJob.JobOptions.ParallelProcessing = 0;
+DefaultJob.JobOptions.ParallelProcessing = 1;
 DefaultJob.JobOptions.NumberOfDigits = 6;
 DefaultJob.JobOptions.RotationRangeType = 'lin';
 DefaultJob.JobOptions.RotationAngleUnits = 'rad';
 DefaultJob.JobOptions.RunCompiled = 1;
-DefaultJob.JobOptions.ReSeed = 1;
-DefaultJob.JobOptions.SimulateCameras = 0;
+DefaultJob.JobOptions.ReSeed = 0;
+DefaultJob.JobOptions.SimulateCameras = 1;
 
 DefaultJob.ImageType = 'synthetic';
 DefaultJob.SetType = 'mc';
@@ -76,8 +76,8 @@ SegmentItem.CaseName = 'piv_test_seeding_1E6';
 SegmentItem.Parameters.RegionHeight = 128;
 SegmentItem.Parameters.RegionWidth  = 128;
 SegmentItem.Parameters.RegionDepth = 1;
-SegmentItem.Parameters.TX =  5 * [1 1];
-SegmentItem.Parameters.TY =  5 * [1 1];
+SegmentItem.Parameters.TX =  0.005/3 * [1 1];
+SegmentItem.Parameters.TY =  0.005/3 * [1 1];
 SegmentItem.Parameters.TZ =  0.00 * [0 2];
 SegmentItem.Parameters.Rotation_Z_01 = 0 * pi * [0 1];
 SegmentItem.Parameters.Rotation_Y    = 0 * pi * [0 1];
@@ -85,11 +85,11 @@ SegmentItem.Parameters.Rotation_Z_02 = 0 * pi * [0 1];
 SegmentItem.Parameters.ShearX = 0 * [0.01, 0.2];
 SegmentItem.Parameters.ShearY = 0 * [0.01, 0.2];
 SegmentItem.Parameters.Scaling = 1 * [1, 1];
-SegmentItem.Parameters.ImageNoise.Mean = 0 * [0.1, 0.1];
-SegmentItem.Parameters.ImageNoise.StdDev = 0 * [0.10, 0.10];
+SegmentItem.Parameters.ImageNoise.Mean = 1 * [0.1, 0.1];
+SegmentItem.Parameters.ImageNoise.StdDev = 1 * [0.10, 0.10];
 SegmentItem.Parameters.ParticleDiameter.Mean = sqrt(8) * [1, 1];
 SegmentItem.Parameters.ParticleDiameter.Std = 0.0  * [1, 1];
-SegmentItem.Parameters.ParticleConcentration = 1E-2 * [1, 1];
+SegmentItem.Parameters.ParticleConcentration = 1E6 * [1, 1];
 JOBLIST(1) = SegmentItem;
 
 end
