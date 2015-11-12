@@ -1,4 +1,4 @@
-function [particle_max_intensity, particle_image_diameter]  = ...
+function [particle_max_intensity, particle_image_diameter, emission_power]  = ...
     calculate_particle_max_intensity(MAGNIFICATION, ...
     PARTICLE_DIAMETER, WAVELENGTH_MICRONS, NA, FOCAL_LENGTH, Z);
 % Calculate particle image diameter in diffraction limited optics.
@@ -7,7 +7,7 @@ function [particle_max_intensity, particle_image_diameter]  = ...
 % Airy function constant
 B2 = 3.67;
 
-% Magnification
+% Objective Magnification
 M = MAGNIFICATION;
 
 % Particle diameter
@@ -29,16 +29,16 @@ Da = f / f_num;
 ds = 2.44 * (M + 1) * L * f_num;
 
 % In focus diameter
-de_focused = sqrt(M^2 * dp^2 + ds^2);
+de_focused = sqrt(M^2 * dp.^2 + ds^2);
 
 % Emission power constant
-Jp = 4 * pi * de_focused^2 * f^2 / (Da^2 * B2);
+emission_power = mean(4 * pi * de_focused.^2 * f^2 ./ (Da^2 * B2));
 
 % Particle image diameter
 particle_image_diameter = calculate_particle_image_diameter(M, dp, L, NA, f, Z);
   
 % Max intensity
-particle_max_intensity = Jp * Da^2 * B2 ./...
+particle_max_intensity = emission_power * Da^2 * B2 ./...
     (4 * pi * particle_image_diameter.^2 ...
     .* (f + Z).^2);
     

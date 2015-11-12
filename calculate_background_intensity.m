@@ -1,6 +1,6 @@
 function background_intensity = calculate_background_intensity(...
     CHANNEL_DEPTH_MICRONS, PARTICLE_CONCENTRATION, MAGNIFICATION,...
-    NA)
+    NA, EMISSION_POWER)
 
 % This function calculates the intensity of the background illumination
 % in a micro PIV image.
@@ -18,7 +18,7 @@ M = MAGNIFICATION;
 
 % Background intensity
 background_intensity = ...
-    C * L / (4 * M^2 * NA^2);
+   EMISSION_POWER * C * L / (4 * M^2 * NA^2);
 
 
 end

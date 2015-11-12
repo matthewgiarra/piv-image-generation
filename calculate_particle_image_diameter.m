@@ -22,7 +22,7 @@ f_num = 2 * NA;
 Da = f / f_num;
 
 % Image diameter
-particle_image_diameter = sqrt(M^2 * dp ^2 + 5.95 * (M + 1)^2 * L^2 * f_num^2 + ...
+particle_image_diameter = sqrt(M^2 * dp .^2 + 5.95 * (M + 1)^2 * L^2 * f_num^2 + ...
     (M * Z * Da).^2 ./ (f + Z).^2);
 
 

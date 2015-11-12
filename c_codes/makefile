@@ -22,7 +22,8 @@ EXT = cpp
 # CFLAGS = -Wall -std=c++0x -I/usr/local/include -L/usr/lib64 -ltiff
 
 # Uncomment these compiler flags if using Mac OS with Libtiff installed via Homebrew.
-CFLAGS = -Wall -pedantic -I/usr/local/Cellar/libtiff/4.0.3/include -L/usr/local/Cellar/libtiff/4.0.3/lib -ltiff
+# CFLAGS = -Wall -pedantic -I/usr/local/Cellar/libtiff/4.0.3/include -L/usr/local/Cellar/libtiff/4.0.3/lib -ltiff
+CFLAGS = -Wall -pedantic
 
 # Type "make" or "make all" to compile the code.
 all:
