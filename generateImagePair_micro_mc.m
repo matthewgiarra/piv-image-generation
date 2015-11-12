@@ -1,32 +1,12 @@
-function  [IMAGE1, IMAGE2] = generateImagePair_micro_mc(Parameters)
+function  [IMAGE1, IMAGE2] = generateImagePair_micro_mc(...
+    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
+    pixel_size_microns, particle_concentration, channel_depth_microns, ...
+    objective_magnification, focal_length_microns, NA, ...
+    wavelength_microns, intensity_fraction, diffusion_std_dev, Tform)
 
 % % % % % % % %  % 
 % BEGIN FUNCTION %
 % % % % % % % %  % 
-
-% Parse structure: image dimensions in pixels
-region_width_pixels  = Parameters.Image.Width;
-region_height_pixels = Parameters.Image.Height;
-
-% Image magnification (microns per pixel)
-pixel_size_microns = Parameters.Image.PixelSize;
-
-% Optics parameters
-objective_magnification = Parameters.Optics.Objective.Magnification;
-%
-% Image transformation
-transformation_matrix = Parameters.Transformation;
-
-% Experiment parameters
-% 
-% Channel depth in microns
-channel_depth_microns = Parameters.Experiment.ChannelDepth;
-
-% Particle concentration (particles per µm^3)
-particle_concentration = Parameters.Experiment.ParticleConcentration;
-
-% Diffusion
-particle_diffusion_stdev = Parameters.Experiment.DiffusionStDev;
 
 % Size of the X domain in microns
 domain_x_um = (2 * region_width_pixels + 1) * ...
@@ -54,20 +34,36 @@ Y1_pix = region_height_pixels * (2 * rand(nParticles, 1) - 1);
 Z1_pix = region_depth_pixels  * (2 * rand(nParticles, 1) - 1);
 
 % Generate the first image
-IMAGE1 = generate_micro_piv_image(X1_pix, Y1_pix, Z1_pix, Parameters);
+IMAGE1 = generate_micro_piv_image(X1_pix, Y1_pix, Z1_pix, ...
+    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
+    pixel_size_microns, particle_concentration, channel_depth_microns, ...
+    objective_magnification, focal_length_microns, NA, ...
+    wavelength_microns, intensity_fraction);
 
 % Transform particle coordinates
 [X2_pix, Y2_pix, Z2_pix] = transformImageCoordinates_3D(...
-    X1_pix, Y1_pix, Z1_pix, transformation_matrix);
+    X1_pix, Y1_pix, Z1_pix, Tform);
 
 % Add diffusion
-X2_pix = X2_pix + particle_diffusion_stdev * randn(nParticles, 1);
-Y2_pix = Y2_pix + particle_diffusion_stdev * randn(nParticles, 1);
-Z2_pix = Z2_pix + particle_diffusion_stdev * randn(nParticles, 1);
+X2_pix = X2_pix + diffusion_std_dev * randn(nParticles, 1);
+Y2_pix = Y2_pix + diffusion_std_dev * randn(nParticles, 1);
+Z2_pix = Z2_pix + diffusion_std_dev * randn(nParticles, 1);
 
-% Generate the first image
-IMAGE2 = generate_micro_piv_image(X2_pix, Y2_pix, Z2_pix, Parameters);
-
+% Generate the second image
+IMAGE2 = generate_micro_piv_image(X2_pix, Y2_pix, Z2_pix, ...
+    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
+    pixel_size_microns, particle_concentration, channel_depth_microns, ...
+    objective_magnification, focal_length_microns, NA, ...
+    wavelength_microns, intensity_fraction);
 
 end % End of function
+
+
+
+
+
+
+
+
+
 

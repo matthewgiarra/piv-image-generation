@@ -35,7 +35,8 @@ de_focused = sqrt(M^2 * dp.^2 + ds^2);
 emission_power = mean(4 * pi * de_focused.^2 * f^2 ./ (Da^2 * B2));
 
 % Particle image diameter
-particle_image_diameter = calculate_particle_image_diameter(M, dp, L, NA, f, Z);
+particle_image_diameter = ...
+    calculate_particle_image_diameter(M, dp, L, NA, f, Z);
   
 % Max intensity
 particle_max_intensity = emission_power * Da^2 * B2 ./...

@@ -1,40 +1,10 @@
-function IMAGE = generate_micro_piv_image(X_PIX, Y_PIX, Z_PIX, Parameters)
-
-% Parse structure: image dimensions in pixels
-region_width_pixels  = Parameters.Image.Width;
-region_height_pixels = Parameters.Image.Height;
-
-% Image magnification (microns per pixel)
-pixel_size_microns = Parameters.Image.PixelSize;
-
-% Optics parameters
-%
-% Objective lens
-% Magnification (unitless)
-objective_magnification = Parameters.Optics.Objective.Magnification;
-
-% Objective lens focal length in microns
-focal_length_microns = Parameters.Optics.Objective.FocalLength;
-
-% Objective lens numerical aperture (unitless)
-NA = Parameters.Optics.Objective.NA;
-
-% Laser wavelength in microns
-wavelength_microns = Parameters.Optics.Laser.Wavelength;
-
-% Fraction above background intensity to render particles
-intensity_fraction = Parameters.Experiment.IntensityFraction;
-
-% Particle diameter
-% Particle diameter in microns
-particle_diameter_microns = Parameters.Experiment.ParticleDiameter;
-
-% Channel depth in microns
-channel_depth_microns = Parameters.Experiment.ChannelDepth;
-
-% Particle concentration (particles per µm^3)
-particle_concentration = Parameters.Experiment.ParticleConcentration;
-
+function IMAGE = generate_micro_piv_image(X_PIX, Y_PIX, Z_PIX, ...
+    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
+    pixel_size_microns, particle_concentration, channel_depth_microns, ...
+    objective_magnification, focal_length_microns, NA, ...
+    wavelength_microns, intensity_fraction)
+    
+    
 % Number of particles
 num_particles = length(X_PIX(:));
 

@@ -1,29 +1,46 @@
 
+% Region size
+region_height = 128;
+region_width = 128;
 
 % Parse structure: image dimensions in pixels
-Parameters.Image.Width = 512;
-Parameters.Image.Height = 512;
+region_width_pixels  = 128;
+region_height_pixels = 128;
 
 % Image magnification (microns per pixel)
-Parameters.Image.PixelSize = 20;
+pixel_size_microns = 20;
 
 % Optics parameters
-%
 % Objective lens
 % Magnification (unitless)
-Parameters.Optics.Objective.Magnification = 50;
+objective_magnification = 50;
 
 % Objective lens focal length in microns
-Parameters.Optics.Objective.FocalLength = 4E3;
+focal_length_microns = 4E3;
 
 % Objective lens numerical aperture (unitless)
-Parameters.Optics.Objective.NA = 0.75;
+NA = 0.75;
 
 % Laser wavelength in microns
-Parameters.Optics.Laser.Wavelength = 0.532;
+wavelength_microns = 0.532;
 
 % Fraction above background intensity to render particles
-Parameters.Experiment.IntensityFraction = 0.0;
+intensity_fraction = 0.0;
+
+% Experiment parameters
+% 
+% Channel depth in microns
+channel_depth_microns = 50;
+
+% Particle diameter in microns
+particle_diameter_microns = 1.0;
+
+% Particle concentration (particles per µm^3)
+particle_concentration = 5E-3;
+
+% Diffusion
+diffusion_std_dev = 3;
+
 
 % Transform parameters
 R = [0, 0, 0];
@@ -38,27 +55,34 @@ szx = 0;
 szy = 0;
 SH = [sxy, sxz, syx, syz, szx, szy];
 T = [0, 0, 0];
-tform = makeAffineTransform_3D(S, R, SH, T);
+Tform = makeAffineTransform_3D(S, R, SH, T);
 
-% Image transformation
-Parameters.Transformation = tform;
 
-% Experiment parameters
-% 
-% Channel depth in microns
-Parameters.Experiment.ChannelDepth = 50;
+n_pairs = 100;
 
-% Particle diameter in microns
-Parameters.Experiment.ParticleDiameter = 1.0;
+% Allocate matrix
+imageMatrix1 = zeros(region_height, region_width, n_pairs);
+imageMatrix2 = zeros(region_height, region_width, n_pairs);
 
-% Particle concentration (particles per µm^3)
-Parameters.Experiment.ParticleConcentration = 5E-3;
+t1 = tic;
 
-% Diffusion
-Parameters.Experiment.DiffusionStDev = 3;
-
+for k = 1 : n_pairs
 % Generate image pair.
-[IMAGE1, IMAGE2] = generateImagePair_micro_mc(Parameters);
+[imageMatrix1(:, :, k), imageMatrix2(:, :, k)] = ...
+    generateImagePair_micro_mc(...
+    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
+    pixel_size_microns, particle_concentration, channel_depth_microns, ...
+    objective_magnification, focal_length_microns, NA, ...
+    wavelength_microns, intensity_fraction, diffusion_std_dev, Tform);
+end
+
+t2 = toc(t1);
+
+seconds_per_pair = t2 / n_pairs;
+
+fprintf('%0.3f seconds for %d pairs\n', t2, n_pairs);
+fprintf('%0.3f seconds per pair\n', seconds_per_pair);
+
 
 % % Show the images;
 % subplot(1, 2, 1);
