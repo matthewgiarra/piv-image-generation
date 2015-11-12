@@ -397,7 +397,11 @@ for n = 1 : nJobs
         % Save image height and width to structure
         Parameters.ImageHeight = region_height_pixels;
         Parameters.ImageWidth = region_width_pixels;
-        Parameters.ScalingRange = scaling;
+        
+        % Save experiment parmaeters 
+        Parameters.Experiment = JobFile.Parameters.Experiment;
+        Parameters.Optics = JobFile.Parameters.Optics;
+        Parameters.Image = JobFile.Parameters.Image;
         
         % Max value of the images
         % The image class probably shouldn't
