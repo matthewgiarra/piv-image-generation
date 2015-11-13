@@ -50,6 +50,8 @@ for n = 1 : nJobs
     pixel_size_microns = JobFile.Parameters.Image.PixelSize;
    
     % Objective parameters
+    JobFile.Parameters.Optics.Objective = ...
+        load_objective_parameters(JobFile.Parameters.Optics.Objective.Name);
     objective_magnification = JobFile.Parameters.Optics.Objective.Magnification;
     focal_length_microns = JobFile.Parameters.Optics.Objective.FocalLength;
     NA = JobFile.Parameters.Optics.Objective.NA;
