@@ -186,8 +186,6 @@ for n = 1 : nJobs
     casePrefix = [setType '_h' num2str(region_height_pixels) ...
                           '_w' num2str(region_width_pixels)];
                       
-                      
-
     % Number of image sets
     nSets = endSet - startSet + 1;
 
@@ -435,7 +433,7 @@ for n = 1 : nJobs
          
         t1 = tic;
         % Populate each array in the noise matrix.
-        parfor k = 1 : imagesPerSet
+        for k = 1 : imagesPerSet
 
             % Create the noise matrix for the list of second images.
             noiseMatrix1 = ...

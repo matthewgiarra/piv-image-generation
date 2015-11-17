@@ -368,8 +368,7 @@ for n = 1 : nJobs
                 Parameters.ImageNoise.Mean(k) = image_noise_mean_i + (image_noise_mean_f - image_noise_mean_i) * rand;
                 
                 % Intensity noise standard deviation
-                Parameters.ImageNoise.StdDev(k) = image_noise_std_dev_i + (image_noise_std_dev_f - image_noise_std_dev_i) * rand;
-                
+                Parameters.ImageNoise.StdDev(k) = image_noise_std_dev_i + (image_noise_std_dev_f - image_noise_std_dev_i) * rand;                
             
             end
         end

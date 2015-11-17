@@ -20,8 +20,8 @@ DefaultJob.Parameters.Sets.End = 1;
 DefaultJob.Parameters.Sets.ImagesPerSet = 1000;
 
 % Rigid-body displacements (pixels)
-DefaultJob.Parameters.Translation.X =  10 * [-1 1];
-DefaultJob.Parameters.Translation.Y =  10 * [-1 1];
+DefaultJob.Parameters.Translation.X =  10 * [1 1];
+DefaultJob.Parameters.Translation.Y =  10 * [1 1];
 DefaultJob.Parameters.Translation.Z =  0 * [0 2];
 
 % Range of isotropic scaling factors
@@ -32,7 +32,7 @@ DefaultJob.Parameters.Rotation.Z_01 = 0 * [1 1];
 DefaultJob.Parameters.Rotation.Y    = 0 * [1 1];
 DefaultJob.Parameters.Rotation.Z_02 = 0 * [1 1];
 
-% Sharing
+% Shearing
 DefaultJob.Parameters.Shear.XY = 0 * [0.00, 0.10];
 DefaultJob.Parameters.Shear.XZ = 0 * [1, 1];
 DefaultJob.Parameters.Shear.YX = 0 * [0.00, 0.10];
@@ -52,7 +52,7 @@ DefaultJob.Parameters.Noise.Std = 0.05;
 DefaultJob.Parameters.Image.PixelSize = 20;
 
 % Objective lens parameters
-DefaultJob.Parameters.Optics.Objective.Name = '20x';
+DefaultJob.Parameters.Optics.Objective.Name = '10x';
 
 % Laser wavelength in microns
 DefaultJob.Parameters.Optics.Laser.Wavelength = 0.532;
@@ -67,10 +67,10 @@ DefaultJob.Parameters.Experiment.ChannelDepth = 1;
 DefaultJob.Parameters.Experiment.ParticleDiameter = 1.0 * [1, 1];
 
 % Particle concentration (particles per µm^3)
-DefaultJob.Parameters.Experiment.ParticleConcentration = 5E-3;
+DefaultJob.Parameters.Experiment.ParticleConcentration = 5E-5;
 
 % Diffusion
-DefaultJob.Parameters.Experiment.DiffusionStdDev = 3 * [1, 1];
+DefaultJob.Parameters.Experiment.DiffusionStdDev = 0 * [1, 1];
 
 % Case 1
 SegmentItem = DefaultJob;
@@ -80,7 +80,7 @@ SegmentItem.Parameters.Image.Height = 128;
 SegmentItem.Parameters.Image.Width  = 128;
 SegmentItem.Parameters.ImageNoise.Mean = 0 * [0.1, 0.1];
 SegmentItem.Parameters.ImageNoise.StdDev = 0 * [0.10, 0.10];
-SegmentItem.Parameters.Experiment.ParticleDiameter = sqrt(8) * [1, 1];
+SegmentItem.Parameters.Experiment.ParticleDiameter = 2 * sqrt(8) * [1, 1];
 SegmentItem.Parameters.ParticleConcentration = 5E-3 * [1, 1];
 JOBLIST(1) = SegmentItem;
 
