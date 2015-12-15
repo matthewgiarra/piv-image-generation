@@ -420,20 +420,19 @@ for n = 1 : nJobs
         image_noise_mean_list = Parameters.ImageNoise.Mean;
    
         % List of image noise standard deviations
-        image_noise_std_dev_list = Parameters.ImageNoise.StdDev .* ...
-            image_noise_mean_list;
+        image_noise_std_dev_list = Parameters.ImageNoise.StdDev;
             
         % Allocate the image matrix (image 1)
         imageMatrix1 = zeros(region_height_pixels, ...
-            region_width_pixels, imagesPerSet);
+            region_width_pixels, imagesPerSet, 'uint16');
         
         % Allocate the image matrix (image 2)
         imageMatrix2 = zeros(region_height_pixels, ...
-            region_width_pixels, imagesPerSet);
+            region_width_pixels, imagesPerSet, 'uint16');
          
         t1 = tic;
         % Populate each array in the noise matrix.
-        for k = 1 : imagesPerSet
+        parfor k = 1 : imagesPerSet
 
             % Create the noise matrix for the list of second images.
             noiseMatrix1 = ...
@@ -457,8 +456,12 @@ for n = 1 : nJobs
                 intensity_fraction, particle_diffusion_list(k), ...
                 tforms(:, :, k));
             
-            imageMatrix1(:, :, k) = img_01 + noiseMatrix1;
-            imageMatrix2(:, :, k) = img_02 + noiseMatrix2;
+            
+            % Max value of the images, plus a little bit.
+            img_max = 1.1 * max([img_01(:); img_02(:)]);
+           
+            imageMatrix1(:, :, k) = cast(img_01 ./ img_max * maxVal + noiseMatrix1, 'uint16');
+            imageMatrix2(:, :, k) = cast(img_02 ./ img_max * maxVal + noiseMatrix2, 'uint16');
          
         end
         t2 = toc(t1);
@@ -466,6 +469,9 @@ for n = 1 : nJobs
 
         fprintf('%0.3f seconds for %d pairs\n', t2, imagesPerSet);
         fprintf('%0.3f seconds per pair\n', seconds_per_pair);
+        
+        % Add the jobfile to the parameters path
+        Parameters.JobFile = JobFile;
 
         % Save the parameters array.
         save(parametersFilePath, 'Parameters');
