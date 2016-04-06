@@ -353,10 +353,10 @@ for n = 1 : nJobs
         end
 
         % Save the parameters array.
-        save(parametersFilePath, 'Parameters');
+        save(parametersFilePath, 'Parameters', '-v7.3');
 
         % Save the image matrices.
-        save(imageMatrixFilePath, 'imageMatrix1', 'imageMatrix2');
+        save(imageMatrixFilePath, 'imageMatrix1', 'imageMatrix2', '-v7.3');
 
         % Inform the user of the save path
         disp(['Saved images to ' imageMatrixFilePath]); 

@@ -18,7 +18,7 @@ DefaultJob.Parameters.Image.Height = region_height_pixels;
 DefaultJob.Parameters.Image.Width = region_width_pixels;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 100;
+DefaultJob.Parameters.Sets.ImagesPerSet = 10;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.Translation.X =  (15.2123) * [1, 1];
@@ -71,7 +71,7 @@ DefaultJob.Parameters.Experiment.ParticleDiameter = 1.0 * [1, 1];
 DefaultJob.Parameters.Experiment.ParticleConcentration = 5E-5;
 
 % Diffusion
-DefaultJob.Parameters.Experiment.DiffusionStdDev = 1 * [0, 5];
+DefaultJob.Parameters.Experiment.DiffusionStdDev = 5 * [0, 1];
 
 % Case 1
 SegmentItem = DefaultJob;

@@ -459,7 +459,8 @@ for n = 1 : nJobs
             
             % Max value of the images, plus a little bit.
             img_max = 1.1 * max([img_01(:); img_02(:)]);
-           
+         
+            % Rescale the images and cast as uint16 
             imageMatrix1(:, :, k) = cast(img_01 ./ img_max * maxVal + noiseMatrix1, 'uint16');
             imageMatrix2(:, :, k) = cast(img_02 ./ img_max * maxVal + noiseMatrix2, 'uint16');
          
@@ -474,10 +475,10 @@ for n = 1 : nJobs
         Parameters.JobFile = JobFile;
 
         % Save the parameters array.
-        save(parametersFilePath, 'Parameters');
+        save(parametersFilePath, 'Parameters', '-v7.3');
 
         % Save the image matrices.
-        save(imageMatrixFilePath, 'imageMatrix1', 'imageMatrix2');
+        save(imageMatrixFilePath, 'imageMatrix1', 'imageMatrix2', '-v7.3');
 
         % Inform the user of the save path
         disp(['Saved images to ' imageMatrixFilePath]); 
