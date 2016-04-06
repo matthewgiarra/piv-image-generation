@@ -1,19 +1,20 @@
 function compile_generateParticleImage();
 
-% Example variables
-image_height = 1024;
-image_width = 1024;
-particle_diameters = coder.typeof(1.00, [inf, 1]);
-particle_max_intensities = coder.typeof(1.00, [inf, 1]);
-particle_positions_rows = coder.typeof(1.00, [inf, 1]);
-particle_positions_columns = coder.typeof(1.00, [inf, 1]);
+% Compile the codes using the mac command / linux commands
 
-% Set up the coder configuration
-cfg = coder.config('mex');
-cfg.DynamicMemoryAllocation = 'AllVariableSizeArrays';
-cfg.GenerateReport = true;
+try
+	if isunix && ~ismac % Case for linux machines
+	    mex -O CFLAGS="\$CFLAGS -std=c99" generateParticleImage.c
+	else
+		% This command should work with both mac and windows.
+		mex generateParticleImage.c;
+	end
+	
+	% Inform the user
+	fprintf(['Compiled generateParticleImage.c to generateParticleImage.' mexext '\n']);
 
-% Run coder to generate the mex file.
-codegen -config cfg generateParticleImage -args {image_height, image_width, particle_positions_columns, particle_positions_rows, particle_diameters, particle_max_intensities};
+catch
+	fprintf('Error compiling codes.\n');
+end
 
 end

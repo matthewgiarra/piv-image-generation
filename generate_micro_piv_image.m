@@ -50,7 +50,7 @@ yc = region_height_pixels / 2 + 1;
 X_render = X_PIX(render_inds) + xc;
 Y_render = Y_PIX(render_inds) + yc;
 
-% Render the first image.
+% Render the image
 IMAGE = generateParticleImage(...
     region_height_pixels, region_width_pixels, ...
     X_render, Y_render, ...
@@ -58,3 +58,4 @@ IMAGE = generateParticleImage(...
     particle_max_intensities_render) + background_intensity;
 
 end
+

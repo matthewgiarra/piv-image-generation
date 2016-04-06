@@ -1,77 +1,46 @@
-// whittaker_blackman7.c
-#include <math.h>
+// Include the standard libraries.
 #include <stdio.h>
+#include <math.h>
 #include "mex.h" /* Always include this */
+
 void mexFunction(int nlhs, mxArray *plhs[], /* Output variables */
 int nrhs, const mxArray *prhs[]) /* Input variables */
+
 {
+	#define B_OUT plhs[0] // Output image (array)
+	#define M_IN  prhs[0] // Height of the output image (integer)
+	#define N_IN  prhs[1] // Width of the output image (integer)
+	#define X_IN  prhs[2] // Horizontal positions of particles (vector)
+	#define	Y_IN  prhs[3] // Vertical positions of particles (vector)
+	#define DP_IN prhs[4] // Particle diameters (vector)
+	#define I_IN  prhs[5] // Particle max intensities
 	
-	// INPUTS
+	// Constants
+    #define pi 3.141592653589793
 	
-	// nlhs is the number of output (left-side) arguments, or the size of the plhs array.
+	// Square root of 8
+	#define sqrt8 2.82842712475
 	
-	// plhs is the array of output arguments.
-	
-	// nrhs is the number of input (right hand side) arguments, or the size of the prhs array.
-	
-	// prhs is the array of input arguments.
-
-    #define B_OUT plhs[0]
-
-    #define HEIGHT_IN prhs[0]
-	
-    #define WIDTH_IN prhs[1]
-	
-	#define X_IN prhs[2]
-
-    #define Y_IN prhs[3]
-	
-	#define DP_IN prhs[4]
-	
-	#define MAX_INT_IN prhs[5]
-	
-	// Pointers to arrays
-	// B is the output image
-	// dp is the vector of particle image diameters
-	// max_int is the vector of particle max intensities
-	// X is the vector of the particles' horizontal positions (non-integer)
-	// Y is the vector of the particles' vertical positions (non-integer)
-    double *B, *dp, *I, *X, *Y;
-    const double eps = 1.0E-15;
-    const double pi = 3.141592653589793;
-	const double sqrt8 = sqrt(8);
-	
+	// Declare variables
+	// B is the output image;
+	// X and Y are the horizontal and
+	// vertical positions of the particles;
+	// dp is the array of particle diameters;
+	// I is the array of particle max intensities.
+	// M and N are the numbers of rows
+	// and columns in the image to be generated.
+	double *B, *X, *Y, *dp, *I, *M, *N;
+		
+	// Number of particles in the image
 	int num_particles;
 	
-	// Height and width of the image to be rendered
-	int M = (int)*mxGetPr(HEIGHT_IN);
-	int N = (int)*mxGetPr(WIDTH_IN);
-	int p, r, c, ind; // counters
-	
-	// Number of rows in the position vector
-	int particle_position_rows = mxGetM(X_IN);
-	int particle_position_cols = mxGetN(X_IN);
-
-	// Particle diameters
-	dp = mxGetPr(DP_IN);
-	
-	// Particle intensities
-	I = mxGetPr(MAX_INT_IN);
-	
-	/* Get the pointer to the data of X */
-    X = mxGetPr(X_IN);
-	
-	/* Get the pointer to the data of Y */
-    Y = mxGetPr(Y_IN); 
-	
-	/* Create the output matrix */
-    B_OUT = mxCreateDoubleMatrix(M, N, 0); 
-	
-	/* Get the pointer to the data of B */
-    B = mxGetPr(B_OUT); 
-	
-	// Define the cutoff intensity
-	double cutoff_intensity = exp(-3);
+	// Counters for loops. 
+	// p is particle number;
+	// r is row number;
+	// c is column number;
+	// ind is the pixel index 
+	// within the output array (B)
+	int p, r, c, ind; 
 	
 	// Fractional rows and columns
 	//to be rendered for each particle
@@ -87,18 +56,46 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	int minRenderedRow;
 	int maxRenderedRow;
 	
-	// Count the number of particles.
-	// Accept either row or column vectors for the positions.
-	num_particles = fmax(particle_position_rows, particle_position_cols);
+	// Cutoff intensity for rendering
+	double cutoff_intensity;
+		
+	// Get the pointer to the vectors containing particle positions
+	X = mxGetPr(X_IN);
+	Y = mxGetPr(Y_IN);
+	
+	// Get pointers to particle diameters and intensities
+	dp = mxGetPr(DP_IN);
+	I  = mxGetPr(I_IN);
+	
+	// Get pointers to image sizes
+	M = mxGetPr(M_IN);
+	N = mxGetPr(N_IN);
+	
+	// Measure array sizes (number of particles)
+	num_particles = mxGetM(X_IN);
+	
+	// Allocate the output array (real valued)
+	B_OUT = mxCreateDoubleMatrix(*M, *N, mxREAL);
+	
+	// Get pointer to the data in B
+	B = mxGetPr(B_OUT);
+	
+	// Specify the cutoff intensity
+	// for rendering Gaussian particles.
+	// Pixels are rendered when
+	// the intensity of the particle
+	// at the pixel is greater than
+	// or equal to this value.
+	cutoff_intensity = exp(-3);
 		
 	// Loop over all the particles
 	for(p = 0; p < num_particles; p++){		
 		
 		// Min and max rows and columns to render for that column.
 		minRenderedCol_fract = fmax(0, X[p] - 1 * dp[p]);
-		maxRenderedCol_fract = fmin(N-1, X[p] + 1 * dp[p]);
+		maxRenderedCol_fract = fmin((int)*N-1, X[p] + 1 * dp[p]);
 		minRenderedRow_fract = fmax(0, Y[p] - 1 * dp[p]);
-		maxRenderedRow_fract = fmin(M-1, Y[p] + 1 * dp[p]);
+		maxRenderedRow_fract = fmin((int)*M-1, Y[p] + 1 * dp[p]);
 		
 		// Integer rows to render
 		minRenderedRow = (int) (minRenderedRow_fract - 
@@ -113,35 +110,28 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 			fmod(maxRenderedCol_fract, 1));
 		
 		// Skip particles that are outside of the domain
-		if(minRenderedRow >=0 & maxRenderedRow < M & minRenderedCol >=0 & maxRenderedCol < N & I[p] > cutoff_intensity){
-	
+		if(minRenderedRow >=0 & maxRenderedRow < (int)*M & minRenderedCol >=0 & maxRenderedCol < (int)*N & I[p] > cutoff_intensity){
+			
 			// Loop over all the particles.
 			for(r = minRenderedRow; r <= maxRenderedRow; r++){
 				for(c = minRenderedCol; c <= maxRenderedCol; c++){
 					
 					// Index of the pixel to render					
-					ind = r + M * c;
-
+					ind = r + (*M) * c;
+					
 					// Add the intensity to the image
-					B[ind] += dp[p] * 
-						I[p] * dp[p] * dp[p] * pi / 32 *
-                   (erf( sqrt8 *  (c - X[p] + 0.5) 
-                   / dp[p]) - erf(sqrt8 * 
-                   (c - X[p] - 0.5) / dp[p])) * 
-                   (erf( sqrt8 *  (r - Y[p] + 0.5) 
-                   / dp[p]) - erf(sqrt8 * 
-                   (r - Y[p] - 0.5) / dp[p]));					
+					B[ind] += I[p] * dp[p] * dp[p] * pi / 32 *
+					                   (erf( sqrt8 * (c - X[p] + 0.5)
+					                   / dp[p]) - erf(sqrt8 *
+					                   (c - X[p] - 0.5) / dp[p])) *
+					                   (erf( sqrt8 * (r - Y[p] + 0.5)
+					                   / dp[p]) - erf(sqrt8 *
+					                   (r - Y[p] - 0.5) / dp[p]));	
 				}
 			}			
 		}		
 	}
 	
-    return;
+    return;	
 }
-
-
-
-
-
-
 
