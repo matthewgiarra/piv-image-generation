@@ -1,24 +1,24 @@
 function JOBLIST = MonteCarloImageGenerationJobFile_micro()
 
 % Region dimensions
-region_width_pixels  = 128;
-region_height_pixels  = 128;
+region_width_pixels  = 1024;
+region_height_pixels  = 1024;
 
 DefaultJob.JobOptions.ParallelProcessing = 1;
 DefaultJob.JobOptions.NumberOfDigits = 6;
 DefaultJob.JobOptions.ReSeed = 1;
 
 DefaultJob.ImageType = 'synthetic';
-DefaultJob.SetType = 'lin';
+DefaultJob.SetType = 'mc';
 DefaultJob.CaseName = 'piv_test_images';
-% DefaultJob.ProjectRepository = '/home/shannon/b/aether/Projects/APC/';
-DefaultJob.ProjectRepository = '~/Desktop/piv_test_images';
+DefaultJob.ProjectRepository = '/home/shannon/b/aether/Projects/APC/';
+% DefaultJob.ProjectRepository = '~/Desktop/piv_test_images';
 
 DefaultJob.Parameters.Image.Height = region_height_pixels;
 DefaultJob.Parameters.Image.Width = region_width_pixels;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 10;
+DefaultJob.Parameters.Sets.ImagesPerSet = 100;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.Translation.X =  (15.2123) * [1, 1];
@@ -42,11 +42,11 @@ DefaultJob.Parameters.Shear.ZX = 0 * [0.00, 0.10];
 DefaultJob.Parameters.Shear.ZY = 0 * [0.00, 0.10];
 
 % Range of particle concentrations (particles per pixel)
-DefaultJob.Parameters.ParticleConcentration = 5E-3 * [1 1];
+DefaultJob.Parameters.ParticleConcentration = 1E-2 * [1 1];
 
 % Noise parameters
-DefaultJob.Parameters.Noise.Mean = 0.05;
-DefaultJob.Parameters.Noise.Std = 0.05;
+% DefaultJob.Parameters.Noise.Mean = 0.05 * [0, 0];
+% DefaultJob.Parameters.Noise.Std = 0.05 * [0, 0];
 
 % Optics
 % Image magnification (microns per pixel)
@@ -62,36 +62,53 @@ DefaultJob.Parameters.Optics.Laser.Wavelength = 0.532;
 DefaultJob.Parameters.Experiment.IntensityFraction = 0.00;
  
 % Channel depth in microns
-DefaultJob.Parameters.Experiment.ChannelDepth = 20;
+DefaultJob.Parameters.Experiment.ChannelDepth = 50;
 
 % Particle diameter in microns
-DefaultJob.Parameters.Experiment.ParticleDiameter = 1.0 * [1, 1];
+DefaultJob.Parameters.Experiment.ParticleDiameter = 0.2 * [1, 1];
 
 % Particle concentration (particles per µm^3)
 DefaultJob.Parameters.Experiment.ParticleConcentration = 5E-5;
 
 % Diffusion
-DefaultJob.Parameters.Experiment.DiffusionStdDev = 5 * [0, 1];
+DefaultJob.Parameters.Experiment.DiffusionStdDev = 0 * [1, 1];
 
 % Case 1
 SegmentItem = DefaultJob;
 SegmentItem.SetType = 'lin';
-SegmentItem.CaseName = 'piv_test_micro_diffusion';
-SegmentItem.Parameters.Image.Height = 128;
-SegmentItem.Parameters.Image.Width  = 128;
-SegmentItem.Parameters.ImageNoise.Mean = 0 * [0.1, 0.1];
-SegmentItem.Parameters.ImageNoise.StdDev = 0.001 * [1, 1];
-SegmentItem.Parameters.Experiment.ParticleDiameter = 1.0 * [1, 1];
-SegmentItem.Parameters.ParticleConcentration = 5E-3 * [1, 1];
+SegmentItem.CaseName = 'piv_test_constant_diffusion';
+SegmentItem.Parameters.Image.Height = 1024;
+SegmentItem.Parameters.Image.Width  = 1024;
+SegmentItem.Parameters.Noise.Mean = 0 * [0.1, 0.1];
+SegmentItem.Parameters.Noise.Std = 0.001 * [1, 1];
+SegmentItem.Parameters.Experiment.ParticleDiameter = 0.2 * [1, 1];
+SegmentItem.Parameters.ParticleConcentration = 5E-2 * [1, 1];
 JOBLIST(1) = SegmentItem;
 
-%SegmentItem.CaseName = 'piv_test_micro_noise_0.10';
-%SegmentItem.Parameters.ImageNoise.StdDev = 0.1 * [1, 1];
-%JOBLIST(end + 1) = SegmentItem;
+SegmentItem.Parameters.Experiment.DiffusionStdDev = 1 * [1, 1];
+SegmentItem.Parameters.Sets.Start = SegmentItem.Parameters.Sets.Start + 1;
+SegmentItem.Parameters.Sets.End = SegmentItem.Parameters.Sets.Start;
+JOBLIST(end + 1) = SegmentItem;
 
-%SegmentItem.CaseName = 'piv_test_micro_noise_0.20';
-%SegmentItem.Parameters.ImageNoise.StdDev = 0.2 * [1, 1];
-%JOBLIST(end + 1) = SegmentItem;
+SegmentItem.Parameters.Experiment.DiffusionStdDev = 2 * [1, 1];
+SegmentItem.Parameters.Sets.Start = SegmentItem.Parameters.Sets.Start + 1;
+SegmentItem.Parameters.Sets.End = SegmentItem.Parameters.Sets.Start;
+JOBLIST(end + 1) = SegmentItem;
+
+SegmentItem.Parameters.Experiment.DiffusionStdDev = 3 * [1, 1];
+SegmentItem.Parameters.Sets.Start = SegmentItem.Parameters.Sets.Start + 1;
+SegmentItem.Parameters.Sets.End = SegmentItem.Parameters.Sets.Start;
+JOBLIST(end + 1) = SegmentItem;
+
+SegmentItem.Parameters.Experiment.DiffusionStdDev = 4 * [1, 1];
+SegmentItem.Parameters.Sets.Start = SegmentItem.Parameters.Sets.Start + 1;
+SegmentItem.Parameters.Sets.End = SegmentItem.Parameters.Sets.Start;
+JOBLIST(end + 1) = SegmentItem;
+
+SegmentItem.Parameters.Experiment.DiffusionStdDev = 5 * [1, 1];
+SegmentItem.Parameters.Sets.Start = SegmentItem.Parameters.Sets.Start + 1;
+SegmentItem.Parameters.Sets.End = SegmentItem.Parameters.Sets.Start;
+JOBLIST(end + 1) = SegmentItem;
 
 % generateMonteCarloImageSet_micro(JOBLIST);
 

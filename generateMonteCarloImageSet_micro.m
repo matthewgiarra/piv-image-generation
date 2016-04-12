@@ -95,8 +95,8 @@ for n = 1 : nJobs
     particle_diffusion_std_dev = JobFile.Parameters.Experiment.DiffusionStdDev;
     
     % Noise parameters
-    image_noise_mean     = JobFile.Parameters.ImageNoise.Mean;
-    image_noise_std_dev  = JobFile.Parameters.ImageNoise.StdDev;
+    image_noise_mean     = JobFile.Parameters.Noise.Mean;
+    image_noise_std_dev  = JobFile.Parameters.Noise.Std;
 
     % Specify explicitly the bounds of the scaling parameter for the Monte
     % Carlo simulation

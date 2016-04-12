@@ -33,6 +33,16 @@ switch lower(objective_name)
 
         % Objective lens numerical aperture (unitless)
         OBJECTIVE_PARAMETERS.NA = 0.75;
+        
+    case '60x'        
+        % Objective magnification
+        OBJECTIVE_PARAMETERS.Magnification = 60;
+
+        % Objective lens focal length in microns
+        OBJECTIVE_PARAMETERS.FocalLength = 4E3;
+
+        % Objective lens numerical aperture (unitless)
+        OBJECTIVE_PARAMETERS.NA = 1.4;
 end
 
 
