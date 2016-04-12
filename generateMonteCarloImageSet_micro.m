@@ -85,7 +85,7 @@ for n = 1 : nJobs
     rotation_angle_range_Z_02 = JobFile.Parameters.Rotation.Z_02;
   
   	% Particle concentration (particles per microliter)
-	concentration = JobFile.Parameters.ParticleConcentration;
+	concentration = JobFile.Parameters.Experiment.ParticleConcentration;
     
     % Particle diameter (pixels)
     particle_diameter_microns  = ...

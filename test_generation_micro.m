@@ -7,7 +7,7 @@ region_height = 128;
 region_width = 128;
 
 % Number of images
-num_images = 500;
+num_images = 1;
 
 % Displacements
 sx = 12 + 1 * rand;

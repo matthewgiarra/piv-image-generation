@@ -11,14 +11,14 @@ DefaultJob.JobOptions.ReSeed = 1;
 DefaultJob.ImageType = 'synthetic';
 DefaultJob.SetType = 'mc';
 DefaultJob.CaseName = 'piv_test_images';
-DefaultJob.ProjectRepository = '/home/shannon/b/aether/Projects/APC/';
-% DefaultJob.ProjectRepository = '~/Desktop/piv_test_images';
+% DefaultJob.ProjectRepository = '/home/shannon/b/aether/Projects/APC/';
+DefaultJob.ProjectRepository = '~/Desktop/piv_test_images';
 
 DefaultJob.Parameters.Image.Height = region_height_pixels;
 DefaultJob.Parameters.Image.Width = region_width_pixels;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 100;
+DefaultJob.Parameters.Sets.ImagesPerSet = 1;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.Translation.X =  (15.2123) * [1, 1];
@@ -42,7 +42,7 @@ DefaultJob.Parameters.Shear.ZX = 0 * [0.00, 0.10];
 DefaultJob.Parameters.Shear.ZY = 0 * [0.00, 0.10];
 
 % Range of particle concentrations (particles per pixel)
-DefaultJob.Parameters.ParticleConcentration = 1E-2 * [1 1];
+DefaultJob.Parameters.Experiment.ParticleConcentration = 1E-2 * [1 1];
 
 % Noise parameters
 % DefaultJob.Parameters.Noise.Mean = 0.05 * [0, 0];
@@ -68,7 +68,7 @@ DefaultJob.Parameters.Experiment.ChannelDepth = 50;
 DefaultJob.Parameters.Experiment.ParticleDiameter = 0.2 * [1, 1];
 
 % Particle concentration (particles per µm^3)
-DefaultJob.Parameters.Experiment.ParticleConcentration = 5E-5;
+% DefaultJob.Parameters.Experiment.ParticleConcentration = 5E-5;
 
 % Diffusion
 DefaultJob.Parameters.Experiment.DiffusionStdDev = 0 * [1, 1];
@@ -77,12 +77,12 @@ DefaultJob.Parameters.Experiment.DiffusionStdDev = 0 * [1, 1];
 SegmentItem = DefaultJob;
 SegmentItem.SetType = 'lin';
 SegmentItem.CaseName = 'piv_test_constant_diffusion';
-SegmentItem.Parameters.Image.Height = 1024;
-SegmentItem.Parameters.Image.Width  = 1024;
+SegmentItem.Parameters.Image.Height = 512;
+SegmentItem.Parameters.Image.Width  = 512;
 SegmentItem.Parameters.Noise.Mean = 0 * [0.1, 0.1];
 SegmentItem.Parameters.Noise.Std = 0.001 * [1, 1];
 SegmentItem.Parameters.Experiment.ParticleDiameter = 0.2 * [1, 1];
-SegmentItem.Parameters.ParticleConcentration = 5E-2 * [1, 1];
+SegmentItem.Parameters.Experiment.ParticleConcentration = 5E-2 * [1, 1];
 JOBLIST(1) = SegmentItem;
 
 SegmentItem.Parameters.Experiment.DiffusionStdDev = 1 * [1, 1];
