@@ -56,6 +56,20 @@ IMAGE2 = generate_micro_piv_image(X2_pix, Y2_pix, Z2_pix, ...
     objective_magnification, NA, working_distance_microns, focal_length_microns, ...
     wavelength_microns, intensity_fraction);
 
+% Max value of the two images
+% Both images will be scaled
+% according to this value
+% so that their exposures
+% are the same.
+max_val = max([IMAGE1(:); IMAGE2(:)]);
+
+% Scale the images by the max value.
+IMAGE1 = 0.95 * IMAGE1 ./ max_val;
+IMAGE2 = 0.95 * IMAGE2 ./ max_val;
+
+figure(1); imagesc(IMAGE1); axis image; colormap gray; caxis([0, 1]);
+figure(2); imagesc(IMAGE2); axis image; colormap gray; caxis([0, 1]);
+
 end % End of function
 
 

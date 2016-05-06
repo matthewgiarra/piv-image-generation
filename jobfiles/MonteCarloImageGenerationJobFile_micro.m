@@ -77,12 +77,12 @@ DefaultJob.Parameters.Experiment.DiffusionStdDev = 0 * [1, 1];
 SegmentItem = DefaultJob;
 SegmentItem.SetType = 'mc';
 SegmentItem.CaseName = 'piv_test_constant_diffusion';
-SegmentItem.Parameters.Image.Height = 128;
-SegmentItem.Parameters.Image.Width  = 128;
+SegmentItem.Parameters.Image.Height = 512;
+SegmentItem.Parameters.Image.Width  = 512;
 SegmentItem.Parameters.Noise.Mean = 1 * [0.1, 0.1];
 SegmentItem.Parameters.Noise.Std = 0.01 * [1, 1];
 SegmentItem.Parameters.Experiment.ParticleDiameter = 1 * [1, 1];
-SegmentItem.Parameters.Experiment.ParticleConcentration = 5E-4 * [1, 1];
+SegmentItem.Parameters.Experiment.ParticleConcentration = 5E-3 * [1, 1];
 JOBLIST(1) = SegmentItem;
 
 % SegmentItem.Parameters.Experiment.DiffusionStdDev = 1 * [1, 1];

@@ -32,11 +32,6 @@ IMAGE_OUT = zeros(HEIGHT, WIDTH);
 % Gaussian beam is eight times the beam's standard deviation).
 % cutoff_intensity = exp(-6);
 
-
-
-% Determine the number of particles to render
-number_of_particles = length(X);
-
 % Determine the miniumum and maximum columns (leftmost and rightmost pixels) in the image
 % to which each particle contributes some intensity,
 % fractional values
@@ -81,9 +76,8 @@ for p = 1 : num_to_render
             render_pixel = c >= 1 ...
                 && c <= WIDTH ...
                 && r >= 1 ...
-                && r <= HEIGHT;
-        
-%                 && render_radius < 0.75 * PARTICLE_DIAMETERS(ind);
+                && r <= HEIGHT...        
+                && render_radius < 0.75 * PARTICLE_DIAMETERS(ind);
            
             % Render the pixel if it meets the criteria
             if render_pixel              
@@ -95,17 +89,16 @@ for p = 1 : num_to_render
                        ...
                        (erf( sqrt8 *  (r - Y(ind) - 0.5) ...
                        / PARTICLE_DIAMETERS(ind)) - erf(sqrt8 * ...
-                       (r - Y(ind) + 0.5) / PARTICLE_DIAMETERS(ind)));
-               
+                       (r - Y(ind) + 0.5) / PARTICLE_DIAMETERS(ind)));               
             end      
         end
     end    
 end
 
-% Keep the image from over-saturating by limiting its maximum value to one.
-if max(IMAGE_OUT(:)) > 1
-    IMAGE_OUT = IMAGE_OUT ./ max(IMAGE_OUT(:));
-end
+% % Keep the image from over-saturating by limiting its maximum value to one.
+% if max(IMAGE_OUT(:)) > 1
+%     IMAGE_OUT = IMAGE_OUT ./ max(IMAGE_OUT(:));
+% end
 
 % % Flip the image, which contains no noise
 % IMAGEOUT = flipud(imagePlaceholder);

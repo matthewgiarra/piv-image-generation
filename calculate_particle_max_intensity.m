@@ -4,9 +4,6 @@ function [particle_max_intensity, particle_image_diameters]  = ...
 % Calculate particle image diameter in diffraction limited optics.
 % Microscope model taken from Olsen & Adrian 2000
 
-% Airy function constant
-B2 = 3.67;
-
 % Objective Magnification
 M = MAGNIFICATION;
 
