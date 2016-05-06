@@ -86,10 +86,7 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	
 	// Get pointer to the data in B
 	B = mxGetPr(B_OUT);
-        
-	// Print number of particles
-	printf("Number of particles: %d\n", num_particles);
-		
+       
 	// Loop over all the particles
 	for(p = 0; p < num_particles; p++){		
 		
@@ -106,9 +103,6 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 		// Render the particle if the criteria are met.
         if(render_particle == true){
             
-			// Inform the user
-			printf("Rendering particle %d of %d\n", p, num_particles);
-			
 			// Loop over all the particles.
 			for(r = minRenderedRow; r <= maxRenderedRow; r++){
 				for(c = minRenderedCol; c <= maxRenderedCol; c++){

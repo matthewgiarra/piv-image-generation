@@ -439,14 +439,14 @@ for n = 1 : nJobs
 
             % Create the noise matrix for the list of second images.
             noiseMatrix1 = ...
-            image_noise_mean_list(k) * maxVal + ...
-            image_noise_std_dev_list(k) * maxVal * ...
+            image_noise_mean_list(k) + ...
+            image_noise_std_dev_list(k) * ...
             randn([region_height_pixels, region_width_pixels]);
 
             % Create the noise matrix for the list of second images.
             noiseMatrix2 = ...
-            image_noise_mean_list(k) * maxVal + ...
-            image_noise_std_dev_list(k) * maxVal * ...
+            image_noise_mean_list(k) + ...
+            image_noise_std_dev_list(k) * ...
             randn([region_height_pixels, region_width_pixels]);	
         
             % Generate the image pair
@@ -461,10 +461,11 @@ for n = 1 : nJobs
                 tforms(:, :, k));
          
             % Rescale the images and cast as uint16 
-            imageMatrix1(:, :, k) = cast(img_01 * maxVal + noiseMatrix1, 'uint16');
-            imageMatrix2(:, :, k) = cast(img_02 * maxVal + noiseMatrix2, 'uint16');
-         
+            imageMatrix1(:, :, k) = cast(abs((img_01 + noiseMatrix1) * maxVal), 'uint16');
+            imageMatrix2(:, :, k) = cast(abs((img_02 + noiseMatrix2) * maxVal), 'uint16');
+            
         end
+        
         t2 = toc(t1);
         seconds_per_pair = t2 / imagesPerSet;
 
