@@ -20,6 +20,9 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	
 	// Square root of 8
 	#define sqrt8 2.82842712475
+    
+    // Machine precision
+    #define eps 2.2204E-16;
 	
 	// Declare variables
 	// B is the output image;
@@ -86,16 +89,21 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	// the intensity of the particle
 	// at the pixel is greater than
 	// or equal to this value.
-	cutoff_intensity = exp(-3);
+	// This comment is wrong!
+	// This is not what this variable does!
+    cutoff_intensity = eps;
+    
+    // Temporary counter
+    int pr = 0;
 		
 	// Loop over all the particles
 	for(p = 0; p < num_particles; p++){		
 		
 		// Min and max rows and columns to render for that column.
-		minRenderedCol_fract = fmax(0, X[p] - 1 * dp[p]);
-		maxRenderedCol_fract = fmin((int)*N-1, X[p] + 1 * dp[p]);
-		minRenderedRow_fract = fmax(0, Y[p] - 1 * dp[p]);
-		maxRenderedRow_fract = fmin((int)*M-1, Y[p] + 1 * dp[p]);
+		minRenderedCol_fract = X[p] - 0.75 * dp[p];
+		maxRenderedCol_fract = X[p] + 0.75 * dp[p];
+		minRenderedRow_fract = Y[p] - 0.75 * dp[p];
+		maxRenderedRow_fract = Y[p] + 0.75 * dp[p];
 		
 		// Integer rows to render
 		minRenderedRow = (int) (minRenderedRow_fract - 
@@ -112,6 +120,10 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 		// Skip particles that are outside of the domain
 		if(minRenderedRow >=0 & maxRenderedRow < (int)*M & minRenderedCol >=0 & maxRenderedCol < (int)*N & I[p] > cutoff_intensity){
 			
+            pr += 1;
+            
+            printf("Rendered %d particles\n", pr);
+            
 			// Loop over all the particles.
 			for(r = minRenderedRow; r <= maxRenderedRow; r++){
 				for(c = minRenderedCol; c <= maxRenderedCol; c++){
@@ -121,12 +133,12 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 					
 					// Add the intensity to the image
 					B[ind] += I[p] * dp[p] * dp[p] * pi / 32 *
-					                   (erf( sqrt8 * (c - X[p] + 0.5)
+					                   (erf( sqrt8 * (c - X[p] - 0.5)
 					                   / dp[p]) - erf(sqrt8 *
-					                   (c - X[p] - 0.5) / dp[p])) *
-					                   (erf( sqrt8 * (r - Y[p] + 0.5)
+					                   (c - X[p] + 0.5) / dp[p])) *
+					                   (erf( sqrt8 * (r - Y[p] - 0.5)
 					                   / dp[p]) - erf(sqrt8 *
-					                   (r - Y[p] - 0.5) / dp[p]));	
+					                   (r - Y[p] + 0.5) / dp[p]));	
 				}
 			}			
 		}		

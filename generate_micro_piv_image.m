@@ -1,10 +1,22 @@
 function IMAGE = generate_micro_piv_image(X_PIX, Y_PIX, Z_PIX, ...
     region_height_pixels, region_width_pixels, particle_diameter_microns ,...
     pixel_size_microns, particle_concentration, channel_depth_microns, ...
-    objective_magnification, focal_length_microns, NA, ...
+    objective_magnification, NA, working_distance_microns, focal_length_microns,...
     wavelength_microns, intensity_fraction)
     
     
+% Limit of the near-field in microns
+% This is calculated from the description 
+% in Eckstein & Vlachos 2009 "Digital particle image velocimetry (DPIV)
+% robust phase correlation"
+% by setting the size of a particle (in microns) at 
+% a distance z from the focal plane (taken from equation 21) 
+% equal to twice the average particle spacing (concentration in particles /
+% / microns^3) ^(-1/3)
+% This is here is half the depth of field -- the absolute distance from
+% the focal plane corresponding to the in field depths.
+depth_of_field_microns = sqrt(4 * particle_concentration^(-2/3) - particle_diameter_microns^2 - 5.95 * wavelength_microns^2 / (4 * NA^2));
+
 % Number of particles
 num_particles = length(X_PIX(:));
 
@@ -14,13 +26,20 @@ dp = particle_diameter_microns * ones(num_particles, 1);
 % Convert Z position to microns
 Z_um = Z_PIX * pixel_size_microns / objective_magnification;
 
+% % Temporary
+focal_plane_z_microns = channel_depth_microns /2 ;
+
+% Z position in the coordinate system of the focal plane
+z_um_focal = Z_um - focal_plane_z_microns;
+
+% Particles that lie within the depth of field
+inds = find(abs(z_um_focal) < depth_of_field_microns);
+
 % Calculate particle max intensities and diameters
 % These are in units of microns
-[particle_max_intensities, particle_image_diameters_microns, ...
-    emission_power]  = ...
+[particle_max_intensities, particle_image_diameters_microns]  = ...
     calculate_particle_max_intensity(objective_magnification, ...
-    dp, wavelength_microns, NA, ...
-    focal_length_microns, Z_um);
+    dp(inds), wavelength_microns, NA, z_um_focal(inds));
 
 % Convert particle image diameters to pixels
 particle_image_diameters_pixels = ...
@@ -29,33 +48,14 @@ particle_image_diameters_pixels = ...
 % Background intensity
 background_intensity = calculate_background_intensity(...
     channel_depth_microns, particle_concentration,...
-    objective_magnification, NA, emission_power);
-
-% Indices of particles to render
-render_inds = find(particle_max_intensities > ...
-    intensity_fraction * background_intensity);
-
-% Select the diameters of the particles to be rendered.
-particle_image_diameters_pixels_render = ...
-    particle_image_diameters_pixels(render_inds);
-
-% Select the intensities of the particles to be rendered.
-particle_max_intensities_render = particle_max_intensities(render_inds);
-
-% Center pixels
-xc = region_width_pixels  / 2 + 1;
-yc = region_height_pixels / 2 + 1;
-
-% Select the particles to be rendered.
-X_render = X_PIX(render_inds) + xc;
-Y_render = Y_PIX(render_inds) + yc;
+    objective_magnification, NA, working_distance_microns, focal_length_microns );
 
 % Render the image
 IMAGE = generateParticleImage(...
     region_height_pixels, region_width_pixels, ...
-    X_render, Y_render, ...
-    particle_image_diameters_pixels_render, ...
-    particle_max_intensities_render);
+    X_PIX(inds), Y_PIX(inds), ...
+    particle_image_diameters_pixels, ...
+    particle_max_intensities);
 
 end
 
