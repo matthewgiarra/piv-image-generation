@@ -431,7 +431,9 @@ for n = 1 : nJobs
         imageMatrix2 = zeros(region_height_pixels, ...
             region_width_pixels, imagesPerSet, 'uint16');
          
+        % Start a timer
         t1 = tic;
+        
         % Populate each array in the noise matrix.
         for k = 1 : imagesPerSet
 
@@ -448,22 +450,19 @@ for n = 1 : nJobs
             randn([region_height_pixels, region_width_pixels]);	
         
             % Generate the image pair
+            % These images are scaled [0, 1]
             [img_01, img_02] = generateImagePair_micro_mc(...
                 region_height_pixels, region_width_pixels,...
                 particle_diameter_microns_list(k) ,...
                 pixel_size_microns, particle_concentrations_list(k), ...
                 channel_depth_microns, objective_magnification, NA, ...
                 working_distance_microns, focal_length_microns, wavelength_microns, ...
-                intensity_fraction, particle_diffusion_list(k), ...
+                particle_diffusion_list(k), ...
                 tforms(:, :, k));
-            
-            
-            % Max value of the images, plus a little bit.
-            img_max = 1.1 * max([img_01(:); img_02(:)]);
          
             % Rescale the images and cast as uint16 
-            imageMatrix1(:, :, k) = cast(img_01 ./ img_max * maxVal + noiseMatrix1, 'uint16');
-            imageMatrix2(:, :, k) = cast(img_02 ./ img_max * maxVal + noiseMatrix2, 'uint16');
+            imageMatrix1(:, :, k) = cast(img_01 * maxVal + noiseMatrix1, 'uint16');
+            imageMatrix2(:, :, k) = cast(img_02 * maxVal + noiseMatrix2, 'uint16');
          
         end
         t2 = toc(t1);

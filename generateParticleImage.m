@@ -23,6 +23,12 @@ function IMAGE_OUT = generateParticleImage(HEIGHT, WIDTH, X, Y, ...
 % Square root of 8; just calculate this once
 sqrt8 = sqrt(8);
 
+% Define render fraction
+% This is a multiple of the particle
+% diameter that specifies how far away from the 
+% particle center to render.
+render_fraction = 0.75;
+
 % Create a placeholder to store the generated image
 IMAGE_OUT = zeros(HEIGHT, WIDTH); 
 
@@ -35,14 +41,14 @@ IMAGE_OUT = zeros(HEIGHT, WIDTH);
 % Determine the miniumum and maximum columns (leftmost and rightmost pixels) in the image
 % to which each particle contributes some intensity,
 % fractional values
-minRenderedCols = floor(X - 0.75 * PARTICLE_DIAMETERS);
-maxRenderedCols =  ceil(X + 0.75 * PARTICLE_DIAMETERS);
+minRenderedCols = floor(X - render_fraction * PARTICLE_DIAMETERS);
+maxRenderedCols =  ceil(X + render_fraction * PARTICLE_DIAMETERS);
 
 % Determine the minimum and maximum rows (topmost and bottommost pixels) in
 % the image to which each particle contributes some intensity, 
 % fractional values
-minRenderedRows = floor(Y - 0.75 * PARTICLE_DIAMETERS);
-maxRenderedRows =  ceil(Y + 0.75 * PARTICLE_DIAMETERS);
+minRenderedRows = floor(Y - render_fraction * PARTICLE_DIAMETERS);
+maxRenderedRows =  ceil(Y + render_fraction * PARTICLE_DIAMETERS);
 
 % Determine which particles contribute intensity to the image
 render_particle = minRenderedCols <= WIDTH & ...
@@ -77,7 +83,7 @@ for p = 1 : num_to_render
                 && c <= WIDTH ...
                 && r >= 1 ...
                 && r <= HEIGHT...        
-                && render_radius < 0.75 * PARTICLE_DIAMETERS(ind);
+                && render_radius < render_fraction * PARTICLE_DIAMETERS(ind);
            
             % Render the pixel if it meets the criteria
             if render_pixel              

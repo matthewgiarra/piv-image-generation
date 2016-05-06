@@ -22,8 +22,11 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	#define sqrt8 2.82842712475
     
     // Machine precision
-    #define eps 2.2204E-16;
-	
+    #define eps 2.2204E-16
+    
+    // Render fraction
+    #define render_fraction 0.75
+    
 	// Declare variables
 	// B is the output image;
 	// X and Y are the horizontal and
@@ -51,6 +54,7 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	double maxRenderedCol_fract;
 	double minRenderedRow_fract;
 	double maxRenderedRow_fract;
+	double render_radius;
 	
 	// Integer rows and columns
 	//to be rendered for each particle
@@ -59,9 +63,9 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	int minRenderedRow;
 	int maxRenderedRow;
 	
-	// Cutoff intensity for rendering
-	double cutoff_intensity;
-		
+    // Boolean render flag
+    int render_particle, render_pixel;
+    
 	// Get the pointer to the vectors containing particle positions
 	X = mxGetPr(X_IN);
 	Y = mxGetPr(Y_IN);
@@ -82,68 +86,61 @@ int nrhs, const mxArray *prhs[]) /* Input variables */
 	
 	// Get pointer to the data in B
 	B = mxGetPr(B_OUT);
-	
-	// Specify the cutoff intensity
-	// for rendering Gaussian particles.
-	// Pixels are rendered when
-	// the intensity of the particle
-	// at the pixel is greater than
-	// or equal to this value.
-	// This comment is wrong!
-	// This is not what this variable does!
-    cutoff_intensity = eps;
-    
-    // Temporary counter
-    int pr = 0;
+        
+	// Print number of particles
+	printf("Number of particles: %d\n", num_particles);
 		
 	// Loop over all the particles
 	for(p = 0; p < num_particles; p++){		
 		
 		// Min and max rows and columns to render for that column.
-		minRenderedCol_fract = X[p] - 0.75 * dp[p];
-		maxRenderedCol_fract = X[p] + 0.75 * dp[p];
-		minRenderedRow_fract = Y[p] - 0.75 * dp[p];
-		maxRenderedRow_fract = Y[p] + 0.75 * dp[p];
+		minRenderedCol = (int)floor(X[p] - render_fraction * dp[p]);
+		maxRenderedCol = (int)ceil(X[p] + render_fraction * dp[p]);
+		minRenderedRow = (int)floor(Y[p] - render_fraction * dp[p]);
+		maxRenderedRow = (int)ceil(Y[p] + render_fraction * dp[p]);
+        
+        // Flag whether or not to render the particle
+        render_particle = minRenderedCol <= (*N-1) & maxRenderedCol >= 0 &
+                          minRenderedRow <= (*M-1) & maxRenderedRow >= 0;
 		
-		// Integer rows to render
-		minRenderedRow = (int) (minRenderedRow_fract - 
-			fmod(minRenderedRow_fract, 1));
-		maxRenderedRow = (int) (maxRenderedRow_fract - 
-			fmod(maxRenderedRow_fract, 1));
-	
-		// Integer columns to render
-		minRenderedCol = (int) (minRenderedCol_fract - 
-			fmod(minRenderedCol_fract, 1));
-		maxRenderedCol = (int) (maxRenderedCol_fract - 
-			fmod(maxRenderedCol_fract, 1));
-		
-		// Skip particles that are outside of the domain
-		if(minRenderedRow >=0 & maxRenderedRow < (int)*M & minRenderedCol >=0 & maxRenderedCol < (int)*N & I[p] > cutoff_intensity){
+		// Render the particle if the criteria are met.
+        if(render_particle == true){
+            
+			// Inform the user
+			printf("Rendering particle %d of %d\n", p, num_particles);
 			
-            pr += 1;
-            
-            printf("Rendered %d particles\n", pr);
-            
 			// Loop over all the particles.
 			for(r = minRenderedRow; r <= maxRenderedRow; r++){
 				for(c = minRenderedCol; c <= maxRenderedCol; c++){
 					
-					// Index of the pixel to render					
-					ind = r + (*M) * c;
+					// Radius from particle center
+					render_radius = sqrt(pow(c - X[p], 2) + pow(r - Y[p], 2));
 					
-					// Add the intensity to the image
-					B[ind] += I[p] * dp[p] * dp[p] * pi / 32 *
-					                   (erf( sqrt8 * (c - X[p] - 0.5)
-					                   / dp[p]) - erf(sqrt8 *
-					                   (c - X[p] + 0.5) / dp[p])) *
-					                   (erf( sqrt8 * (r - Y[p] - 0.5)
-					                   / dp[p]) - erf(sqrt8 *
-					                   (r - Y[p] + 0.5) / dp[p]));	
-				}
-			}			
-		}		
-	}
-	
+					// Flag whether or not to render the pixel
+					render_pixel = c >= 0 & c <= *N - 1 &
+								   r >= 0 & r <= *M - 1 &
+								   render_radius <= render_fraction * dp[p]; 
+					
+					// Render the pixel if the criteria are met.
+					if(render_pixel == true){
+						
+						// Index of the pixel to render					
+						ind = r + (*M) * c;
+					
+						// Add the intensity to the image
+						B[ind] += I[p] * dp[p] * dp[p] * pi / 32 *
+						                   (erf( sqrt8 * (c - X[p] - 0.5)
+						                   / dp[p]) - erf(sqrt8 *
+						                   (c - X[p] + 0.5) / dp[p])) *
+						                   (erf( sqrt8 * (r - Y[p] - 0.5)
+						                   / dp[p]) - erf(sqrt8 *
+						                   (r - Y[p] + 0.5) / dp[p]));	
+						}	
+					}
+				}	
+	        }
+		}
+				
     return;	
 }
 
