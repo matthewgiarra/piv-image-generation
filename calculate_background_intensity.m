@@ -11,7 +11,7 @@ function background_intensity = calculate_background_intensity(...
 % "Adrian and Yao found that for a Gaussian distribution
 % to best approximate an Airy distribution, B^2 = 3.67"
 % Olsen and Adrian 2000 equation 5
-B2 =  3.67;
+B2 = 3.67;
 
 % Channel depth (microns)
 L = CHANNEL_DEPTH_MICRONS;
@@ -45,6 +45,8 @@ de = sqrt(M^2 * dp^2 + ds^2);
 
 % Light power from a particle
 Jp = 4 * pi * de.^2 * WORKING_DISTANCE_MICRONS^2 / (B2 * Da_microns^2);
+
+% % % % This seems like it's evaluating too high % % % %
 
 % Background intensity
 background_intensity = Jp * C  * L * Da_microns^2 / (16 * MAGNIFICATION^2 * (wd - so) * (wd - so + L));

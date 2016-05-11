@@ -49,20 +49,23 @@ DefaultJob.Parameters.Experiment.ParticleConcentration = 1E-2 * [1 1];
 % DefaultJob.Parameters.Noise.Std = 0.05 * [0, 0];
 
 % Optics
-% Image magnification (microns per pixel)
-DefaultJob.Parameters.Image.PixelSize = 20;
+% Size of the pixels in microns
+% Assumes square pixels
+DefaultJob.Parameters.Image.PixelSize = 10;
+
+% Bit depth of the imaging system
+% Can be anything but typically 
+% 8, 12, or 16
+DefaultJob.Parameters.Image.BitDepth = 8;
 
 % Objective lens parameters
-DefaultJob.Parameters.Optics.Objective.Name = '50x';
+DefaultJob.Parameters.Optics.Objective.Name = '60x';
 
 % Laser wavelength in microns
 DefaultJob.Parameters.Optics.Laser.Wavelength = 0.532;
-
-% Fraction above background intensity to render particles
-DefaultJob.Parameters.Experiment.IntensityFraction = 0.00;
  
 % Channel depth in microns
-DefaultJob.Parameters.Experiment.ChannelDepth = 200;
+DefaultJob.Parameters.Experiment.ChannelDepth = 100;
 
 % Particle diameter in microns
 DefaultJob.Parameters.Experiment.ParticleDiameter = 0.2 * [1, 1];
@@ -81,7 +84,7 @@ SegmentItem.Parameters.Image.Height = 1024;
 SegmentItem.Parameters.Image.Width  = 1280;
 SegmentItem.Parameters.Noise.Mean = 0 * [0.1, 0.1];
 SegmentItem.Parameters.Noise.Std = 0.03 * [1, 1];
-SegmentItem.Parameters.Experiment.ParticleDiameter = 1 * [1, 1];
+SegmentItem.Parameters.Experiment.ParticleDiameter = 0.2 * [1, 1];
 SegmentItem.Parameters.Experiment.ParticleConcentration = 5E-3 * [1, 1];
 JOBLIST(1) = SegmentItem;
 

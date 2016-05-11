@@ -24,17 +24,18 @@ for n = 1 : nJobs
     % Read the jobfile from the job list
     JobFile = JOBLIST(n);
 	
-    % Image Repository. This is line specifies where the image folders will be saved. 
+    % Image Repository. This is line specifies
+    % where the image folders will be saved. 
     projectRepository = JobFile.ProjectRepository;
     imageType = JobFile.ImageType;
     setType = JobFile.SetType;
     caseName = JobFile.CaseName;
-
+    
     % Start / end sets
     startSet = JobFile.Parameters.Sets.Start;
     endSet = JobFile.Parameters.Sets.End;
     imagesPerSet = JobFile.Parameters.Sets.ImagesPerSet;
-
+    
     % Number of digits in the image set names.
     numberOfDigits = JobFile.JobOptions.NumberOfDigits;
     numberFormat = ['%0' num2str(numberOfDigits) '.0f'];
@@ -42,13 +43,20 @@ for n = 1 : nJobs
     % Monte Carlo or linear
     isMC = regexpi(setType, 'mc');
     isLin = regexpi(setType, 'lin');
-   
+    
     % Height and width of subregion images
     region_height_pixels   = JobFile.Parameters.Image.Height;
     region_width_pixels    = JobFile.Parameters.Image.Width;
+    
+    % Depth of the micro channel (into-plane direction)
     channel_depth_microns  = JobFile.Parameters.Experiment.ChannelDepth;
+    
+    % Pixel size in microns (Assumes square pixels)
     pixel_size_microns = JobFile.Parameters.Image.PixelSize;
-   
+    
+    % Image bit depth
+    image_bit_depth = JobFile.Parameters.Image.BitDepth;
+    
     % Objective parameters
     JobFile.Parameters.Optics.Objective = ...
         load_objective_parameters(JobFile.Parameters.Optics.Objective.Name);
@@ -56,10 +64,9 @@ for n = 1 : nJobs
     focal_length_microns = JobFile.Parameters.Optics.Objective.FocalLength;
     NA = JobFile.Parameters.Optics.Objective.NA;
     working_distance_microns = JobFile.Parameters.Optics.Objective.WorkingDistance;
-
+    
     % Laser stuff
     wavelength_microns = JobFile.Parameters.Optics.Laser.Wavelength;
-    intensity_fraction = JobFile.Parameters.Experiment.IntensityFraction;
     
     % Path to the image save directory
     imageSaveDir = fullfile(projectRepository, 'analysis', 'data', ...
@@ -71,12 +78,12 @@ for n = 1 : nJobs
     if ~exist(imageSaveDir, 'dir')
         mkdir(imageSaveDir)
     end
-
+    
     % Rigid-body displacements (pixels)
     tX = JobFile.Parameters.Translation.X;
     tY = JobFile.Parameters.Translation.Y;
     tZ = JobFile.Parameters.Translation.Z;
-
+    
     % Range of isotropic scaling factors
     scaling = JobFile.Parameters.Scaling;
     
@@ -84,7 +91,7 @@ for n = 1 : nJobs
     rotation_angle_range_Z_01 = JobFile.Parameters.Rotation.Z_01;
     rotation_angle_range_Y    = JobFile.Parameters.Rotation.Y;
     rotation_angle_range_Z_02 = JobFile.Parameters.Rotation.Z_02;
-  
+    
   	% Particle concentration (particles per microliter)
 	concentration = JobFile.Parameters.Experiment.ParticleConcentration;
     
@@ -98,12 +105,12 @@ for n = 1 : nJobs
     % Noise parameters
     image_noise_mean     = JobFile.Parameters.Noise.Mean;
     image_noise_std_dev  = JobFile.Parameters.Noise.Std;
-
+    
     % Specify explicitly the bounds of the scaling parameter for the Monte
     % Carlo simulation
     Si = scaling(1);
     Sf = scaling(2);
-
+    
     % Specify explicitly the bounds of the Euler-decomposed rotation angles
     % First rotation about the Z axis
     Ri_Z_01 = rotation_angle_range_Z_01(1);
@@ -116,7 +123,7 @@ for n = 1 : nJobs
     % Second rotation about the Z axis.
     Ri_Z_02 = rotation_angle_range_Z_02(1);
     Rf_Z_02 = rotation_angle_range_Z_02(2);
-
+    
     % Specify explicitly the bounds of the horizontal shearing parameters
     shear_xy = JobFile.Parameters.Shear.XY;
     shear_xz = JobFile.Parameters.Shear.XZ;
@@ -262,7 +269,7 @@ for n = 1 : nJobs
             Parameters.ParticleDiameter = (linspace(particle_diameter_i, particle_diameter_f, imagesPerSet))';
             Parameters.ImageNoise.Mean = (linspace(image_noise_mean_i, image_noise_mean_f, imagesPerSet))';
             Parameters.ImageNoise.StdDev = (linspace(image_noise_std_dev_i, image_noise_std_dev_f, imagesPerSet))';
-            
+         
         % Monte carlo image sets
         elseif isMC
 
@@ -407,11 +414,25 @@ for n = 1 : nJobs
         % Max value of the images
         % The image class probably shouldn't
         % be hard coded.
-        maxVal = double(intmax('uint16'));
-
-        % Save parameters to their own variables to cut down on data transfer with the parallel for loop
+        maxVal = 2^image_bit_depth - 1;
+        
+        % Set the data type for saving images
+        if image_bit_depth > 8
+            
+        % Use 16-bit precision for bit depth greater than 8
+            data_type_string = 'uint16';
+        else
+            
+        % Use 8-bit precision for bit depth <= 8.
+            data_type_string = 'uint8';
+        end
+      
+        % Save parameters to their own variables to cut 
+        % down on data transfer with the parallel for loop
         particle_concentrations_list = Parameters.Concentration;
         particle_diameter_microns_list = Parameters.ParticleDiameter;
+        
+        % Particle diffusion 
         particle_diffusion_list = Parameters.Diffusion;
         
         % Image transformations
@@ -419,13 +440,13 @@ for n = 1 : nJobs
         
         % List of image noise means
         image_noise_mean_list = Parameters.ImageNoise.Mean;
-   
+        
         % List of image noise standard deviations
         image_noise_std_dev_list = Parameters.ImageNoise.StdDev;
             
         % Allocate the image matrix (image 1)
         imageMatrix1 = zeros(region_height_pixels, ...
-            region_width_pixels, imagesPerSet, 'uint16');
+            region_width_pixels, imagesPerSet);
         
         % Allocate the image matrix (image 2)
         imageMatrix2 = zeros(region_height_pixels, ...
@@ -435,7 +456,7 @@ for n = 1 : nJobs
         t1 = tic;
         
         % Populate each array in the noise matrix.
-        for k = 1 : imagesPerSet
+        parfor k = 1 : imagesPerSet
 
             % Create the noise matrix for the list of second images.
             noiseMatrix1 = ...
@@ -461,31 +482,39 @@ for n = 1 : nJobs
                 tforms(:, :, k));
          
             % Rescale the images and cast as uint16 
-            imageMatrix1(:, :, k) = cast(abs((img_01 + noiseMatrix1) * maxVal), 'uint16');
-            imageMatrix2(:, :, k) = cast(abs((img_02 + noiseMatrix2) * maxVal), 'uint16');
-            
+            imageMatrix1(:, :, k) = abs(img_01 + noiseMatrix1);
+            imageMatrix2(:, :, k) = abs(img_02 + noiseMatrix2);
+      
         end
         
+        % Scale and re-cast data
+        imageMatrix1 = cast(imageMatrix1 .* maxVal, data_type_string);
+        imageMatrix2 = cast(imageMatrix2 .* maxVal, data_type_string);
+        
+        % End the timer
         t2 = toc(t1);
+        
+        % Calculate seconds per pair
         seconds_per_pair = t2 / imagesPerSet;
-
+        
+        % Informt the user
         fprintf('%0.3f seconds for %d pairs\n', t2, imagesPerSet);
         fprintf('%0.3f seconds per pair\n', seconds_per_pair);
         
         % Add the jobfile to the parameters path
         Parameters.JobFile = JobFile;
-
+        
         % Save the parameters array.
         save(parametersFilePath, 'Parameters', '-v7.3');
-
+        
         % Save the image matrices.
         save(imageMatrixFilePath, 'imageMatrix1', 'imageMatrix2', '-v7.3');
-
+        
         % Inform the user of the save path
         disp(['Saved images to ' imageMatrixFilePath]); 
-
+        
     end % End ( for s = 1 : nSets )
-
+    
 end % End (for n = 1 : nJobs )
 
 end
