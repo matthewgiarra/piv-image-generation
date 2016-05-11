@@ -14,7 +14,7 @@ region_height = 128;
 region_width = 128;
 
 % Number of images
-num_images = 1;
+num_images = 100;
 
 % Displacements
 sx = 15.00 + rand;
@@ -28,13 +28,19 @@ diffusion_stdev = 2.1;
 d_mean = 0.1;
 % d_mean = 1.0;
 
+% Dillution factor
+dilution_factor = 200;
+
+% Particles packaged percent solids
+packaged_concentration = 1E-2;
+
 % Particle concentration
 % (volume of particles / volume of domain)
-c = 4E-4;
+c = packaged_concentration / dilution_factor;
 
 % Image noise
 % image_noise_std = 0.03;
-image_noise_std = 0.01;
+image_noise_std = 0.03;
 
 % Gaussian window fraction
 g_fract = 0.5;
