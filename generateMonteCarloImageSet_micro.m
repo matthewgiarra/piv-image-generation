@@ -450,7 +450,7 @@ for n = 1 : nJobs
         
         % Allocate the image matrix (image 2)
         imageMatrix2 = zeros(region_height_pixels, ...
-            region_width_pixels, imagesPerSet, 'uint16');
+            region_width_pixels, imagesPerSet);
          
         % Start a timer
         t1 = tic;
