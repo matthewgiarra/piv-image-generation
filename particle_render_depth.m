@@ -52,7 +52,7 @@ lambda = WAVELENGTH_MICRONS;
 g = RENDER_INTENSITY_FRACTION;
 
 % f number of lens
-f = 2 * NA;
+f = 1 / (2 * NA);
 
 % Constant that makes a Gaussian best approximate
 % an Airy distribution (Adrian and Yao, 1985) B^2 = 3.67

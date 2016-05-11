@@ -14,26 +14,27 @@ region_height = 128;
 region_width = 128;
 
 % Number of images
-num_images = 10;
+num_images = 1;
 
 % Displacements
 sx = 15.00 + rand;
 sy = 0 * (15.00 + 1 * 0.2345);
 
 % Diffusion
-% diffusion_stdev = 3.255;
-diffusion_stdev = 0;
-
+diffusion_stdev = 2.1;
+% diffusion_stdev = 0;
 
 % Mean particle diameter                               
-d_mean = 0.2;
+d_mean = 0.1;
+% d_mean = 1.0;
 
 % Particle concentration
-c = 4E-2;
+% (volume of particles / volume of domain)
+c = 4E-4;
 
 % Image noise
 % image_noise_std = 0.03;
-image_noise_std = 0.03;
+image_noise_std = 0.01;
 
 % Gaussian window fraction
 g_fract = 0.5;
@@ -135,7 +136,7 @@ axis off
 title(sprintf('$t_x = %0.2f, t_y = %0.2f$', sx, sy), ...
     'interpreter', 'latex', ...
     'FontSize', 16);
-caxis([0, intmax('uint16')]);
+caxis([0, intmax('uint8')]);
 colormap gray;
 
 h2 = subplot(1, 2, 2);

@@ -1,5 +1,5 @@
 function background_intensity = calculate_background_intensity(...
-    CHANNEL_DEPTH_MICRONS, PARTICLE_CONCENTRATION, PARTICLE_DIAMETER_MICRONS, ...
+    CHANNEL_DEPTH_MICRONS, PARTICLE_VOLUME_FRACTION, PARTICLE_DIAMETER_MICRONS, ...
     WAVELENGTH_MICRONS, MAGNIFICATION, NA, WORKING_DISTANCE_MICRONS, ...
     FOCAL_LENGTH_MICRONS, OBJECT_PLANE_DISTANCE_MICRONS)
 
@@ -19,23 +19,20 @@ L = CHANNEL_DEPTH_MICRONS;
 % Object plane distance
 so = OBJECT_PLANE_DISTANCE_MICRONS;
 
-% Concentration (particles per micron^3)
-C = PARTICLE_CONCENTRATION;
-
 % Particle diameter in microns
 dp = PARTICLE_DIAMETER_MICRONS;
 
 % Magnification
 M = MAGNIFICATION;
 
-% Focal length
-f = FOCAL_LENGTH_MICRONS;
+% Working distance in microns
+wd = WORKING_DISTANCE_MICRONS;
 
 % Aperture diameter
 Da_microns = 2 * NA * FOCAL_LENGTH_MICRONS;
 
-% Working distance in microns
-wd = WORKING_DISTANCE_MICRONS;
+% Concentration (particles per micron^3)
+C = 6 * PARTICLE_VOLUME_FRACTION / (pi * dp^3);
 
 % Diffraction limited diameter
 ds = 2.44 * (M + 1) * WAVELENGTH_MICRONS / (2 * NA);
@@ -49,7 +46,8 @@ Jp = 4 * pi * de.^2 * WORKING_DISTANCE_MICRONS^2 / (B2 * Da_microns^2);
 % % % % This seems like it's evaluating too high % % % %
 
 % Background intensity
-background_intensity = Jp * C  * L * Da_microns^2 / (16 * MAGNIFICATION^2 * (wd - so) * (wd - so + L));
+background_intensity = Jp * C  * L * Da_microns^2 ...
+    / (16 * MAGNIFICATION^2 * (wd - so) * (wd - so + L));
 
 end
 

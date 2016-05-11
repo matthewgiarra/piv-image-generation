@@ -23,9 +23,15 @@ domain_z_um = channel_depth_microns;
 region_depth_pixels = domain_z_um * ...
     objective_magnification / pixel_size_microns;
 
+% Volume of domain in µm^3
+domain_volume = domain_x_um * domain_y_um * domain_z_um;
+
 % Number of particles to generate
-nParticles = round(particle_concentration ...
-    * domain_x_um * domain_y_um * domain_z_um);
+% nParticles = round(particle_concentration ...
+%     * domain_x_um * domain_y_um * domain_z_um);
+
+nParticles = round(6 * particle_concentration * domain_volume ...
+    / (pi * particle_diameter_microns^3));
 
 % Randomly generate the coordinates of particles
 % Generate horizontal locations of particles in first image (column vector)

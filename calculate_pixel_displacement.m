@@ -5,7 +5,7 @@ channel_width_microns = 5E3;
 channel_depth_microns = 100;
 
 % Flow rate in µL/min
-flow_rate_ul_min = 1;
+flow_rate_ul_min = 5;
 
 % Objective magnification 
 objective_magnification = 60;
@@ -17,7 +17,7 @@ pixel_size_microns = 10;
 T_kelvin = 300;
 
 % Particle diameter in microns
-dp_microns = 0.2;
+dp_microns = 0.1;
 
 % Viscosity in Pa*S
 viscosity_pas = 1.12E-3;
@@ -52,7 +52,7 @@ diffusion_constant_meters_sec = calculate_diffusion_constant(...
     T_kelvin, dp_microns, viscosity_pas);
 
 % Diffusion standard deviation
-diffusion_std_dev_pix = sqrt(2 * diffusion_constant * dt_sec) ...
+diffusion_std_dev_pix = sqrt(2 * diffusion_constant_meters_sec * dt_sec) ...
     * objective_magnification / pixel_size_meters;
 
 % Print things
