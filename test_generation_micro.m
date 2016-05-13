@@ -7,14 +7,14 @@ addpath ~/Desktop/piv-image-generation/jobfiles
 addpath ~/Desktop/FreezeColors
 
 % Microscope objective
-objective_name = '60x';
+objective_magnification = 60;
 
 % Region sizes
 region_height = 128;
 region_width = 128;
 
 % Number of images
-num_images = 100;
+num_images = 1;
 
 % Displacements
 sx = 15.00 + rand;
@@ -22,11 +22,9 @@ sy = 0 * (15.00 + 1 * 0.2345);
 
 % Diffusion
 diffusion_stdev = 2.1;
-% diffusion_stdev = 0;
 
 % Mean particle diameter                               
 d_mean = 0.1;
-% d_mean = 1.0;
 
 % Dillution factor
 dilution_factor = 200;
@@ -37,6 +35,8 @@ packaged_concentration = 1E-2;
 % Particle concentration
 % (volume of particles / volume of domain)
 c = packaged_concentration / dilution_factor;
+
+% c = 4E-4;
 
 % Image noise
 % image_noise_std = 0.03;
@@ -67,7 +67,7 @@ image_gen_joblist(1).Parameters.Translation.Y = sy * [1, 1];
 image_gen_joblist(1).Parameters.Sets.ImagesPerSet = num_images;
 image_gen_joblist(1).Parameters.Experiment.ParticleConcentration = c * [1, 1];
 image_gen_joblist(1).Parameters.Noise.Std = image_noise_std * [1, 1];
-image_gen_joblist(1).Parameters.Optics.Objective.Name = objective_name;
+image_gen_joblist(1).Parameters.Optics.Objective.Magnification = objective_magnification;
 image_gen_joblist(1).Parameters.Experiment.ChannelDepth = channel_depth_microns;
 
 % % SPC job list

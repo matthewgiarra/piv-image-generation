@@ -1,11 +1,9 @@
-function OBJECTIVE_PARAMETERS = load_objective_parameters(objective_name)
+function OBJECTIVE_PARAMETERS = load_objective_parameters(objective_magnification)
 
-% Objective name
-OBJECTIVE_PARAMETERS.Name = lower(objective_name);
 
-switch lower(objective_name)
+switch (objective_magnification)
     
-    case '10x'
+    case 10
         
         % 10X Mitutoyo Plan Apo Infinity Corrected Long WD Objective
 
@@ -21,7 +19,7 @@ switch lower(objective_name)
         % Objective lens focal length in microns
         OBJECTIVE_PARAMETERS.FocalLength = 20E3;
  
-    case '20x'
+    case 20
         
         % 20X Mitutoyo Plan Apo Infinity Corrected Long WD Objective         
 
@@ -37,7 +35,7 @@ switch lower(objective_name)
         % Objective lens focal length in microns
         OBJECTIVE_PARAMETERS.FocalLength = 10E3;
               
-    case '50x'
+    case 50
         
         % Objective magnification
         OBJECTIVE_PARAMETERS.Magnification = 50;
@@ -51,7 +49,7 @@ switch lower(objective_name)
         % Objective lens focal length in microns
         OBJECTIVE_PARAMETERS.FocalLength = 4E3;
         
-    case '60x'
+    case 60
         
         % Objective magnification
         OBJECTIVE_PARAMETERS.Magnification = 60;
@@ -66,7 +64,7 @@ switch lower(objective_name)
         OBJECTIVE_PARAMETERS.FocalLength = 3.3333E3;
         
         
-    case '100x'
+    case 100
         
         % Objective magnification
         OBJECTIVE_PARAMETERS.Magnification = 100;

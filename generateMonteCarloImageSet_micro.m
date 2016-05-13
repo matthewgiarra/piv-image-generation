@@ -59,7 +59,7 @@ for n = 1 : nJobs
     
     % Objective parameters
     JobFile.Parameters.Optics.Objective = ...
-        load_objective_parameters(JobFile.Parameters.Optics.Objective.Name);
+        load_objective_parameters(JobFile.Parameters.Optics.Objective.Magnification);
     objective_magnification = JobFile.Parameters.Optics.Objective.Magnification;
     focal_length_microns = JobFile.Parameters.Optics.Objective.FocalLength;
     NA = JobFile.Parameters.Optics.Objective.NA;
@@ -200,7 +200,7 @@ for n = 1 : nJobs
     % Generate the images. Loop over all of the specified image sets.
     for s = 1 : nSets
         disp(['Generating set ' num2str(s) ' of ' num2str(nSets)]);
-        fprintf(1, 'Image Set %04.0f\n', s); % Inform the user by printing a message to the screen.
+        fprintf(1, 'Image Set %04.0f\n', startSet + s - 1); % Inform the user by printing a message to the screen.
         
         % Directory in which to save images
         imageDir = fullfile(imageSaveDir, ...

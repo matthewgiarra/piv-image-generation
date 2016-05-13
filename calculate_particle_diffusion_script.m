@@ -1,11 +1,10 @@
 
-
 % Channel dimensions
 channel_width_microns = 5E3;
 channel_depth_microns = 100;
 
 % Flow rate in µL/min
-flow_rate_ul_min = 5;
+flow_rate_ul_min = 0.5;
 
 % Objective magnification 
 objective_magnification = 60;
@@ -23,7 +22,7 @@ dp_microns = 0.1;
 viscosity_pas = 1.12E-3;
 
 % Desired pixel displacement in pixels per frame
-dx_pix = 15;
+dx_target_pix = 15;
 
 % Calculate channel cross section in microns^2
 cross_section_microns = channel_width_microns * channel_depth_microns;
@@ -44,8 +43,8 @@ velocity_meters_sec = flow_rate_meters_sec / cross_section_meters ...
 % Average flow velocity in image coordinates
 velocity_pixels_sec = 1 * velocity_meters_sec / pixel_size_meters;
 
-% DT to achieve target fisplacement
-dt_sec = dx_pix / velocity_pixels_sec;
+% DT to achieve target displacement
+dt_sec = dx_target_pix / velocity_pixels_sec;
 
 % Diffusion constant in m^2 / sec
 diffusion_constant_meters_sec = calculate_diffusion_constant(...
@@ -55,10 +54,8 @@ diffusion_constant_meters_sec = calculate_diffusion_constant(...
 diffusion_std_dev_pix = sqrt(2 * diffusion_constant_meters_sec * dt_sec) ...
     * objective_magnification / pixel_size_meters;
 
-% Print things
-fprintf('q = %0.2f uL/min\tdx = %0.2f pix\tdt = %0.2E sec   Diffusion std dev = %0.3f pix\n', flow_rate_ul_min, dx_pix, dt_sec, diffusion_std_dev_pix);
-
-
+fprintf(1, 'dx = %0.2f pix\t dt = %0.2E sec  q = %0.2f ul/min  diffusion std = %0.3f pix\n', ...
+    dx_target_pix, dt_sec, flow_rate_ul_min, diffusion_std_dev_pix);
 
 
 
