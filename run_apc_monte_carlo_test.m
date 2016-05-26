@@ -18,17 +18,21 @@ if nargin < 1
 end
 
 % Get repository paths
-spc_repo = get_spc_repo();
-image_gen_repo = get_image_gen_repo();
+spc_repo_src = get_spc_repo('src');
+spc_repo_top = get_spc_repo('top');
+image_gen_repo_src = get_image_gen_repo('src');
 
 % Add paths SPC
-addpath(fullfile(spc_repo, 'scripts'))
-addpath(fullfile(spc_repo, 'jobfiles'))
-addpath(fullfile(spc_repo, 'filtering'))
+addpath(fullfile(spc_repo_src, 'correlation_algorithms'));
+addpath(fullfile(spc_repo_src, 'filtering'));
+addpath(fullfile(spc_repo_src, 'jobfiles'));
+addpath(fullfile(spc_repo_src, 'phase_unwrapping'));
+addpath(fullfile(spc_repo_src, 'scripts'));
+
 
 % Add image gen paths
-addpath(image_gen_repo);
-addpath(fullfile(image_gen_repo, 'jobfiles'));
+addpath(image_gen_repo_src);
+addpath(fullfile(image_gen_repo_src, 'jobfiles'));
 
 % Target displacements
 tx_pix = 10;
@@ -36,9 +40,6 @@ ty_pix = 0;
 
 % Set base name
 set_base_name = 'piv_test_running_ensemble';
-
-generate_images = true;
-do_processing = true;
 
 % Physical stuff for diffusion
 % Constants for diffusion 
@@ -55,18 +56,27 @@ flow_rate_vect = [0.50];
 % Load the image generation job list
 image_gen_job_list = MonteCarloImageGenerationJobFile_micro();
 
+% Extract the first image gen jobfile
+ImageGenJobFile = image_gen_job_list(1);
+
 % Load the SPC job list
 piv_job_list = spcJobList_mc();
 
 % Extract the spc job file. Only run the first one.
 piv_jobfile = piv_job_list(1);
 
+% Set the PIV jobfile repository path
+piv_jobfile.Parameters.RepositoryPath = spc_repo_top;
+
+% Same for the Image gen repository path
+ImageGenJobFile.ProjectRepository = spc_repo_top;
+
 % Start and end sets
 start_set = 1;
-end_set = 1000;
+end_set = 1;
 
 % Images per set
-images_per_set = 10000;
+images_per_set = 100;
 
 % Images to analyze
 start_image = 1;
@@ -74,14 +84,14 @@ end_image = images_per_set;
 skip_image = 1;
 
 % Sets vector
-set_vect = round(linspace(start_set, end_set, N+1));
+set_vect = round(linspace(start_set, end_set + 1, N+1));
 
 % Start and end sets
-start_set = set_vect(S);
-end_set = set_vect(S + 1) - 1;
+start_set_current = set_vect(S);
+end_set_current = set_vect(S + 1) - 1;
 
 % Sets that the current machine will perform
-set_vect_current = start_set : end_set;
+set_vect_current = start_set_current : end_set_current;
 
 % Sets per jobo on the current machine
 num_sets_per_job = length(set_vect_current);
@@ -91,9 +101,6 @@ num_flow_rates = length(flow_rate_vect);
 
 % Loop over all the jobs
 for n = 1 : num_flow_rates
-    
-    % Extract the first image gen jobfile
-    ImageGenJobFile = image_gen_job_list(1);
    
     % Update the number of images to generate
     ImageGenJobFile.Parameters.Sets.ImagesPerSet = images_per_set;
@@ -126,9 +133,6 @@ for n = 1 : num_flow_rates
     % Set the diffusion in pixels per frame
     ImageGenJobFile.Parameters.Experiment.DiffusionStdDev = ...
     particle_diffusion_std_dev_pix * [1, 1];
-   
-    % Update the repository path stuff
-    piv_jobfile.Parameters.RepositoryPath = ImageGenJobFile.ProjectRepository;
     
     % Update the number of sets
     piv_jobfile.Parameters.Sets.ImagesPerSet = images_per_set;
@@ -198,7 +202,7 @@ for n = 1 : num_flow_rates
             P.Parameters.Sets.End = set_num;
             P.OtherInfo.DiffusionStdDev = ...
                 I.Parameters.Experiment.DiffusionStdDev(1);
-
+				
             % Run the PIV processing
             runMonteCarloCorrelationJobFile(P);
 
@@ -210,16 +214,8 @@ end
 end
 
 
-function result = islinux()
-
-    if (~ismac && isunix)
-        result = true;
-    end
-
-end
-
 function toplevel = get_top_level();
-    if islinux
+    if islinux();
         toplevel = '/home/shannon/b/aether';
     else
         toplevel = '/Volumes/aether_b';
@@ -227,26 +223,43 @@ function toplevel = get_top_level();
 
 end
 
-function repo = get_spc_repo()
+function repo = get_spc_repo(level)
 
-    if islinux
-        repo = ...
-    '/home/shannon/b/aether/Projects/APC/analysis/src/spectral-phase-correlation';
+    if islinux();
+        top_repo = ...
+    '/home/shannon/b/aether/Projects/APC/';
+
+    switch lower(level)
+        case 'top'
+            repo = top_repo;
+        case 'src'
+            repo = fullfile(top_repo, ...
+                'analysis', 'src', 'spectral-phase-correlation');
+    end
+
     else
         repo = '~/Desktop/spectral-phase-correlation';
     end
 
 end
 
-function repo = get_image_gen_repo()
+function repo = get_image_gen_repo(level)
 
-    if islinux
-        repo =...
-    '/home/shannon/b/aether/Projects/piv-image-generation/analysis/src/piv-image-generation';
-    else
-        repo = '~/Desktop/spectral-phase-correlation';
+    if islinux();
+        top_repo = ...
+    '/home/shannon/b/aether/Projects/piv-image-generation/';
+
+    switch lower(level)
+        case 'top'
+            repo = top_repo;
+        case 'src'
+            repo = fullfile(top_repo, 'analysis', 'src', 'piv-image-generation');
     end
 
+    else
+        repo = '~/Desktop/piv-image-generation';
+    end
+	
 end
 
 
