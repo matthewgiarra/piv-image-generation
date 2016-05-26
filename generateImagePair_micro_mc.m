@@ -39,13 +39,6 @@ X1_pix = region_width_pixels  * (2 * rand(nParticles, 1) - 1);
 Y1_pix = region_height_pixels * (2 * rand(nParticles, 1) - 1);
 Z1_pix = region_depth_pixels  * rand(nParticles, 1);
 
-% Generate the first image
-IMAGE1 = generate_micro_piv_image(X1_pix, Y1_pix, Z1_pix, ...
-    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
-    pixel_size_microns, particle_concentration, channel_depth_microns, ...
-    objective_magnification, NA, working_distance_microns, focal_length_microns,  ...
-    wavelength_microns);
-
 % Transform particle coordinates
 [X2_pix, Y2_pix, Z2_pix] = transformImageCoordinates_3D(...
     X1_pix, Y1_pix, Z1_pix, Tform);
@@ -54,6 +47,36 @@ IMAGE1 = generate_micro_piv_image(X1_pix, Y1_pix, Z1_pix, ...
 X2_pix = X2_pix + diffusion_std_dev * randn(nParticles, 1);
 Y2_pix = Y2_pix + diffusion_std_dev * randn(nParticles, 1);
 Z2_pix = Z2_pix + diffusion_std_dev * randn(nParticles, 1);
+
+% u = Tform(1, 4);
+% v = Tform(2, 4);
+% Skip = 100;
+% x1 = X1_pix(1 : Skip: end);
+% y1 = Y1_pix(1 : Skip: end);
+% x2 = X2_pix(1 : Skip: end);
+% y2 = Y2_pix(1 : Skip: end);
+% dx = x2 - x1;
+% dy = y2 - y1;
+% plot(x1, y1, 'ok', 'markerfacecolor', 'black');
+% hold on
+% quiver(x1, y1, dx, dy, 0, 'black');
+% hold off
+% axis image;
+% ylim([1, 127]);
+% xlim([1, 127]);
+% title({sprintf('u = %0.2f, v = %0.2f pix', u, v), ...
+%     sprintf('Diffusion std dev: %0.2f pix', diffusion_std_dev)}...
+%     , 'FontSize', 20);
+% set(gca, 'FontSize', 12)
+% box on;
+
+% Generate the first image
+IMAGE1 = generate_micro_piv_image(X1_pix, Y1_pix, Z1_pix, ...
+    region_height_pixels, region_width_pixels, particle_diameter_microns ,...
+    pixel_size_microns, particle_concentration, channel_depth_microns, ...
+    objective_magnification, NA, working_distance_microns, focal_length_microns,  ...
+    wavelength_microns);
+
 
 % Generate the second image
 % Inform the user

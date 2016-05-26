@@ -29,6 +29,10 @@ void generateParticleImage(double *B, double *X, double *Y, double *dp, double *
 	// Height and width of the image to be rendered
 	int p, r, c, ind; // counters
 	
+	// Numbers of rows and columns
+	M = *num_rows;
+	N = *num_cols;
+	
 	// Define the cutoff intensity
 	double cutoff_intensity = exp(-3);
 	

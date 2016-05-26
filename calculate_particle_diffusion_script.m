@@ -1,10 +1,10 @@
 
+% Flow rate in µL/min
+flow_rate_ul_min = 50;
+
 % Channel dimensions
 channel_width_microns = 5E3;
 channel_depth_microns = 100;
-
-% Flow rate in µL/min
-flow_rate_ul_min = 0.5;
 
 % Objective magnification 
 objective_magnification = 60;

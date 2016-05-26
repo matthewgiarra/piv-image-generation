@@ -26,17 +26,9 @@ diffusion_stdev = 2.1;
 % Mean particle diameter                               
 d_mean = 0.1;
 
-% Dillution factor
-dilution_factor = 200;
-
-% Particles packaged percent solids
-packaged_concentration = 1E-2;
-
 % Particle concentration
 % (volume of particles / volume of domain)
-c = packaged_concentration / dilution_factor;
-
-% c = 4E-4;
+c = 5E-5;
 
 % Image noise
 % image_noise_std = 0.03;
