@@ -35,11 +35,12 @@ addpath(image_gen_repo_src);
 addpath(fullfile(image_gen_repo_src, 'jobfiles'));
 
 % Target displacements
-tx_pix = 10;
+tx_pix = 15;
 ty_pix = 0;
 
 % Set base name
-set_base_name = 'piv_test_running_ensemble';
+set_base_name = sprintf('piv_test_running_ensemble_%d_ppf', tx_pix);
+
 
 % Physical stuff for diffusion
 % Constants for diffusion 
@@ -50,8 +51,7 @@ viscosity_pas = 1.12E-3;
 dx_target_pix = sqrt(tx_pix^2 + ty_pix^2);
 
 % Flow rates to test in uL/min
-% flow_rate_vect = [0.50, 5.0, 50.0];
-flow_rate_vect = [0.50];
+flow_rate_vect = [0.50, 5.0, 50.0, 10.0];
 
 % Load the image generation job list
 image_gen_job_list = MonteCarloImageGenerationJobFile_micro();
@@ -73,10 +73,10 @@ ImageGenJobFile.ProjectRepository = spc_repo_top;
 
 % Start and end sets
 start_set = 1;
-end_set = 1;
+end_set = 100;
 
 % Images per set
-images_per_set = 100;
+images_per_set = 10000;
 
 % Images to analyze
 start_image = 1;
@@ -101,6 +101,9 @@ num_flow_rates = length(flow_rate_vect);
 
 % Loop over all the jobs
 for n = 1 : num_flow_rates
+    
+    % Current flow rate
+    flow_rate_current = flow_rate_vect(n);
    
     % Update the number of images to generate
     ImageGenJobFile.Parameters.Sets.ImagesPerSet = images_per_set;
@@ -132,7 +135,7 @@ for n = 1 : num_flow_rates
     
     % Set the diffusion in pixels per frame
     ImageGenJobFile.Parameters.Experiment.DiffusionStdDev = ...
-    particle_diffusion_std_dev_pix * [1, 1];
+        particle_diffusion_std_dev_pix * [1, 1];
     
     % Update the number of sets
     piv_jobfile.Parameters.Sets.ImagesPerSet = images_per_set;
@@ -151,7 +154,7 @@ for n = 1 : num_flow_rates
     
     % Case name
     input_case_name = ...
-        sprintf('%s_q_%0.1f_ul_min', set_base_name, flow_rate_vect(n));
+        sprintf('%s_q_%0.1f_ul_min', set_base_name, flow_rate_current);
     
     % Determine the case name of the PIV image gen job
     output_case_name = sprintf('%s_', input_case_name);    
@@ -162,15 +165,15 @@ for n = 1 : num_flow_rates
     
     % Output case name
     piv_jobfile.Filepaths.Output.BaseName = output_case_name;
-                
+             			
     % Loop over all the sets
     % Generate a set then run APC
     % rather than generating all the images
     % and then running all the APC
-    for s = 1 : num_sets_per_job
+   parfor s = 1 : num_sets_per_job
 
         % Copy the set number
-        set_num = set_vect(s);
+        set_num = set_vect_current(s);
 
         % Copy the image gen jobfile
          I = ImageGenJobFile;
@@ -188,6 +191,9 @@ for n = 1 : num_flow_rates
             % Update set number
             I.Parameters.Sets.Start = set_num;
             I.Parameters.Sets.End = set_num;
+            
+            % Flow rate
+            I.Parameters.Experiment.FlowRate = flow_rate_current;
 
             % Generate the images
             generateMonteCarloImageSet_micro(I);
@@ -261,7 +267,6 @@ function repo = get_image_gen_repo(level)
     end
 	
 end
-
 
 
 

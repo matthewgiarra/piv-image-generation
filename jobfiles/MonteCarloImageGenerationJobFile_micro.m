@@ -51,7 +51,7 @@ DefaultJob.Parameters.Rotation.Y    = 0 * [1 1];
 DefaultJob.Parameters.Rotation.Z_02 = 0 * [1 1];
 
 % Shearing
-DefaultJob.Parameters.Shear.XY = 15/128 * [1, 1];
+DefaultJob.Parameters.Shear.XY = 0.0 * [1, 1];
 DefaultJob.Parameters.Shear.XZ = 0.0 * [0, 1];
 DefaultJob.Parameters.Shear.YX = 0 * [1, 1];
 DefaultJob.Parameters.Shear.YZ = 0 * [0.00, 0.10];
