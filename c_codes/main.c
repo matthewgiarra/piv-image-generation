@@ -9,9 +9,9 @@
 // Main function
 int main(int argc, char *argv[]){
 
-	if(argc < 7){
+	if(argc < 6){
 		printf("Usage: ./main <num_rows> <num_cols>" 
-			" <particles_per_pix> <num_threads>"
+			" <particles_per_pix>"
 				" <num_images> <output_base>\n");
 		return(-1);
 	}
@@ -20,12 +20,11 @@ int main(int argc, char *argv[]){
 	const int num_rows = atoi(argv[1]);
 	const int num_cols = atoi(argv[2]);
 	float particles_per_pixel = atof(argv[3]);
-	int max_num_threads = atoi(argv[4]);
-	int num_images = atoi(argv[5]);
-	char *output_file_base = argv[6];
+	int num_images = atoi(argv[4]);
+	char *output_file_base = argv[5];
 	
 	// Length of the input string
-	int len = strlen(argv[6]);
+	int len = strlen(argv[5]);
 	
 	// Output file name stuff
 	char *output_file_path;
@@ -82,6 +81,9 @@ int main(int argc, char *argv[]){
 	// Print number of images
 	printf("Number of images: %d\n", num_images);
 	
+	// Seed the random number generator
+	seed_random_number_generator();
+	
 	// Loop over images
 	for(n = 0; n < num_images; n++){
 		
@@ -100,10 +102,10 @@ int main(int argc, char *argv[]){
 		// }
 
 		// Generate the image
-		generateParticleImage_omp(output_image, num_rows,
+		generateParticleImage(output_image, num_rows,
 			num_cols, num_particles,
 			X, Y, particle_diameters,
-			particle_max_intensities, max_num_threads);
+			particle_max_intensities);
 
 		// Convert to uint16
 		for(p = 0; p < num_pixels; p++){
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]){
 
 		// Write the image
 		// printf("Image save path: %s\n", output_file_path);
-		writeTiff_bw16(output_file_path, output_image_uint16 , num_rows, num_cols);
+		// writeTiff_bw16(output_file_path, output_image_uint16 , num_rows, num_cols);
 	
 	}
 
