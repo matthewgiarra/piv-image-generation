@@ -39,7 +39,7 @@ tx_pix = 15;
 ty_pix = 0;
 
 % Set base name
-set_base_name = sprintf('piv_test_running_ensemble_%d_ppf', tx_pix);
+set_base_name = sprintf('piv_test_running_ensemble_%d_ppf_test', tx_pix);
 
 
 % Physical stuff for diffusion
@@ -51,7 +51,8 @@ viscosity_pas = 1.12E-3;
 dx_target_pix = sqrt(tx_pix^2 + ty_pix^2);
 
 % Flow rates to test in uL/min
-flow_rate_vect = [0.50, 5.0, 50.0, 10.0];
+% flow_rate_vect = [0.50, 5.0, 50.0, 10.0];
+flow_rate_vect = 50;
 
 % Load the image generation job list
 image_gen_job_list = MonteCarloImageGenerationJobFile_micro();
@@ -73,10 +74,10 @@ ImageGenJobFile.ProjectRepository = spc_repo_top;
 
 % Start and end sets
 start_set = 1;
-end_set = 100;
+end_set = 1;
 
 % Images per set
-images_per_set = 10000;
+images_per_set = 100;
 
 % Images to analyze
 start_image = 1;
@@ -136,6 +137,9 @@ for n = 1 : num_flow_rates
     % Set the diffusion in pixels per frame
     ImageGenJobFile.Parameters.Experiment.DiffusionStdDev = ...
         particle_diffusion_std_dev_pix * [1, 1];
+
+%     ImageGenJobFile.Parameters.Experiment.DiffusionStdDev = ...
+%         0 * [1, 1];
     
     % Update the number of sets
     piv_jobfile.Parameters.Sets.ImagesPerSet = images_per_set;

@@ -1,11 +1,15 @@
-#include "tiffio.h"
-#include "string.h"
+#include <tiffio.h>
+#include <string.h>
+#include <stdint.h>
 
 // Code for testing the C TIFF library, libtiff
 void writeTiff_bw16(char *output_file_path, uint16_t *image_data, int image_height, int image_width){
 		
 	// Set the number of channels in the image to one, since we are assuming these images come out grayscale.
 	const int samples_per_pixel = 1;
+	
+	// Counter
+	int row;
 						
 	// Open the file
 	TIFF *output_image = TIFFOpen(output_file_path, "w");
@@ -50,7 +54,7 @@ void writeTiff_bw16(char *output_file_path, uint16_t *image_data, int image_heig
 	TIFFSetField(output_image, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(output_image, image_width * samples_per_pixel));
 	
 	// Write the image to the file one strip at a time
-	for(int row = 0; row < image_height; row++){
+	for(row = 0; row < image_height; row++){
 		memcpy(buf, &image_data[(row) * line_bytes], sizeof(uint16_t) * line_bytes);
 		if(TIFFWriteScanline(output_image, buf, row, 0) < 0)
 			break;
@@ -63,16 +67,6 @@ void writeTiff_bw16(char *output_file_path, uint16_t *image_data, int image_heig
 	TIFFClose(output_image);
 		
 }
-
-void sub2ind(int array_cols, int row_sub, int col_sub, int * linear_ind){
-
-	// Calculate the linear index.
-	*linear_ind = row_sub * array_cols + col_sub;
-
-}
-
-
-
 
 
 

@@ -7,7 +7,7 @@ try
 	    mex -O CFLAGS="\$CFLAGS -std=c99" generateParticleImage.c
 	else
 		% This command should work with both mac and windows.
-		mex generateParticleImage.c;
+		mex -O CFLAGS="\$CFLAGS -O3" generateParticleImage.c;
 	end
 	
 	% Inform the user

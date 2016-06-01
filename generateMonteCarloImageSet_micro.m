@@ -471,7 +471,7 @@ for n = 1 : nJobs
             image_noise_mean_list(k) + ...
             image_noise_std_dev_list(k) * ...
             randn([region_height_pixels, region_width_pixels]);	
-        
+         
             % Generate the image pair
             % These images are scaled [0, 1]
             [img_01, img_02] = generateImagePair_micro_mc(...
@@ -482,7 +482,7 @@ for n = 1 : nJobs
                 working_distance_microns, focal_length_microns, wavelength_microns, ...
                 particle_diffusion_list(k), ...
                 tforms(:, :, k));
-         
+          
             % Rescale the images and cast as uint16 
             imageMatrix1(:, :, k) = abs(img_01 + noiseMatrix1);
             imageMatrix2(:, :, k) = abs(img_02 + noiseMatrix2);
