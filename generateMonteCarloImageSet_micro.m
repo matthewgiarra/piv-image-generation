@@ -457,6 +457,8 @@ for n = 1 : nJobs
         
         % Populate each array in the noise matrix.
         parfor k = 1 : imagesPerSet
+            
+            fprintf('On image %d of %d\n', k, imagesPerSet);
 
             % Create the noise matrix for the list of second images.
             noiseMatrix1 = ...

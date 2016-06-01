@@ -41,7 +41,9 @@ pixel_size_meters = pixel_size_microns * 10^-6;
 flow_rate_meters_sec = flow_rate_ul_min / 60 * 10^-9;
 
 % Observed flow velocity in meters per second
-velocity_meters_sec = flow_rate_meters_sec / cross_section_meters ...
+% Factor of 3/2 accounts for measuring at
+% the centerline of the velocity profile.
+velocity_meters_sec = 3 / 2 * flow_rate_meters_sec / cross_section_meters ...
     * objective_magnification;
 
 % Average flow velocity in image coordinates

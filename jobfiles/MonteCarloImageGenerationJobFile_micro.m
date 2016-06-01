@@ -35,7 +35,7 @@ DefaultJob.Parameters.Image.Height = region_height_pixels;
 DefaultJob.Parameters.Image.Width = region_width_pixels;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 1;
+DefaultJob.Parameters.Sets.ImagesPerSet = 40;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.Translation.X =  tx_pix * [1, 1];
@@ -120,8 +120,8 @@ SegmentItem.SetType = 'mc';
 SegmentItem.CaseName = ...
     sprintf('piv_test_running_ensmeble_q_%0.1f_ul_min', flow_rate_ul_min);
 % SegmentItem.CaseName = 'big_example_images';
-SegmentItem.Parameters.Image.Height = 128;
-SegmentItem.Parameters.Image.Width  = 128;
+SegmentItem.Parameters.Image.Height = 2048;
+SegmentItem.Parameters.Image.Width  = 2048;
 SegmentItem.Parameters.Noise.Mean = 0 * [0.1, 0.1];
 SegmentItem.Parameters.Noise.Std = 0.03 * [1, 1];
 SegmentItem.Parameters.Experiment.DiffusionStdDev = ...

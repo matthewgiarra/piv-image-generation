@@ -170,7 +170,7 @@ for n = 1 : num_flow_rates
     % Generate a set then run APC
     % rather than generating all the images
     % and then running all the APC
-   parfor s = 1 : num_sets_per_job
+   for s = 1 : num_sets_per_job
 
         % Copy the set number
         set_num = set_vect_current(s);
