@@ -3,8 +3,10 @@
 #include <omp.h>
 #include <math.h>
 #include <string.h>
+#include <sys/time.h>
 #include "piv-image-gen.h"
 #include "image_writing.h"
+
 
 // Main function
 int main(int argc, char *argv[]){
@@ -87,6 +89,13 @@ int main(int argc, char *argv[]){
 	// Seed the random number generator
 	seed_random_number_generator();
 	
+	// Make a timer
+	struct timeval tval_before, tval_after, tval_result;
+	
+	// Get the time
+	gettimeofday(&tval_before, NULL);
+	
+	
 	#pragma omp parallel private(X, Y, Z, output_image, output_image_uint16, output_file_path) num_threads(max_num_threads)
 	{
 	
@@ -149,6 +158,20 @@ int main(int argc, char *argv[]){
 		free(output_image_uint16);
 		free(output_file_path);	
 	}
+	
+	// Get the time after the loop runs
+	gettimeofday(&tval_after, NULL);
+	
+	// Subtract the ending and starting times
+	timersub(&tval_after, &tval_before, &tval_result);
+	
+	// Total time
+	float total_time_sec = (float)tval_result.tv_sec + (float)tval_result.tv_usec / 1E6;
+	float time_per_image_ms = total_time_sec / (float)num_images * 1000.0;
+	
+	// Print time
+	printf("Time elapsed:   %0.4f sec for %d images\n", total_time_sec, num_images);
+	printf("Time per image: %0.4f ms\n", time_per_image_ms);
 	
 	return(0);
 }
