@@ -87,8 +87,8 @@ int main(int argc, char *argv[]){
 	// Seed the random number generator
 	seed_random_number_generator();
 	
-	// #pragma omp parallel private(X, Y, Z, output_image, output_image_uint16, output_file_path) num_threads(max_num_threads)
-	// {
+	#pragma omp parallel private(X, Y, Z, output_image, output_image_uint16, output_file_path) num_threads(max_num_threads)
+	{
 	
 		// Allocate the array
 		X = malloc(num_particles * sizeof(float));
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]){
 		// Output file name stuff
 		output_file_path = malloc((len + 20) * sizeof(char));
 	
-		// #pragma omp for
+		#pragma omp for
 		// Loop over images
 		for(n = 0; n < num_images; n++){
 	
@@ -136,6 +136,9 @@ int main(int argc, char *argv[]){
 			// Write the image
 			// printf("Image save path: %s\n", output_file_path);
 			writeTiff_bw16(output_file_path, output_image_uint16 , num_rows, num_cols);
+			
+			// print to screen
+			printf("Generated %d of %d images\n", n, num_images);
 
 		}
 	
@@ -145,7 +148,7 @@ int main(int argc, char *argv[]){
 		free(output_image);
 		free(output_image_uint16);
 		free(output_file_path);	
-	// }
+	}
 	
 	return(0);
 }
