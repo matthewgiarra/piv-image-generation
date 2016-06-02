@@ -49,6 +49,10 @@ int main(int argc, char *argv[]){
 	// Counter	
 	int p, n;
 	
+	// Define this here for now
+	// Largest in focus particle diameter in pixels
+	float dp_max = 40.0;
+	
 	// Number of particles
 	num_particles = (int)round((float)num_pixels * (float)particles_per_pixel);
 	
@@ -113,7 +117,7 @@ int main(int argc, char *argv[]){
 			generateParticleImage(output_image, num_rows,
 				num_cols, num_particles,
 				X, Y, particle_diameters,
-				particle_max_intensities);
+				particle_max_intensities, dp_max);
 
 			// Convert to uint16
 			for(p = 0; p < num_pixels; p++){

@@ -456,7 +456,7 @@ for n = 1 : nJobs
         t1 = tic;
         
         % Populate each array in the noise matrix.
-        parfor k = 1 : imagesPerSet
+        for k = 1 : imagesPerSet
             
             fprintf('On image %d of %d\n', k, imagesPerSet);
 

@@ -77,7 +77,7 @@ start_set = 1;
 end_set = 1;
 
 % Images per set
-images_per_set = 100;
+images_per_set = 20;
 
 % Images to analyze
 start_image = 1;
