@@ -88,6 +88,47 @@ function [U, VORTICITY] = lambOseenVortexRingVelocityFunction(T, X, VORTEXPARAME
 
 % Begin Function
 
+% Count the number of points
+nPoints = numel(X)/2;
+
+% Extract the horizontal and vertical coordinates from the column-vector
+% input. The input is a column vector because it has to work with ODE45,
+% which demands a column vector input.
+x = X(1 : nPoints);
+y = X(nPoints + 1 : end);
+
+% Check to see if vortex parameters were supplied
+if nargin == 2
+	VORTEXPARAMETERS = [];
+end
+
+% Default options
+if isempty(VORTEXPARAMETERS)
+	
+	% Min and max x
+	x_min = min(x(:));
+	x_max = max(x(:));
+	
+	% Min and max y
+	y_min = min(y(:));
+	y_max = max(y(:));
+	
+	% Guess the height and width
+	domain_height = y_max  +  (y_min < 0) * y_min;
+	domain_width  = x_max  +  (x_min < 0) * x_min;
+	
+	% Minimum dimension
+	min_dim = min([domain_height, domain_width]);
+	
+	VORTEXPARAMETERS.CoreRadius = min_dim / 5;
+	VORTEXPARAMETERS.VortexRadius = domain_height / 5;
+	VORTEXPARAMETERS.Angle = 0;
+	VORTEXPARAMETERS.PeakVelocity = 5;
+	VORTEXPARAMETERS.PropagationVelocity = 0;
+	VORTEXPARAMETERS.XC = domain_width / 2;
+	VORTEXPARAMETERS.YC = domain_height / 2;
+end
+
 % Extract vortex parameters from structure
 vortexRadius = VORTEXPARAMETERS.VortexRadius;
 coreRadius = VORTEXPARAMETERS.CoreRadius;
@@ -97,14 +138,7 @@ vortexAngle = VORTEXPARAMETERS.Angle;
 propagationVelocity = VORTEXPARAMETERS.PropagationVelocity;
 maxTangentialVelocity = VORTEXPARAMETERS.PeakVelocity;
 
-% Count the number of points
-nPoints = numel(X)/2;
 
-% Extract the horizontal and vertical coordinates from the column-vector
-% input. The input is a column vector because it has to work with ODE45,
-% which demands a column vector input.
-x = X(1 : nPoints);
-y = X(nPoints + 1 : end);
 
 % Center of the vortex ring propagated by the vortex velocitity
 xc = XC + propagationVelocity * T * cosd(vortexAngle);

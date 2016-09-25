@@ -1,6 +1,11 @@
 
 function [X, Y, U, V, VORTICITY] = lambOseenVortexRingVorticityFunction(XIN, YIN, T, VORTEXPARAMETERS);
 
+	if isempty(VORTEXPARAMETERS)
+		
+		
+	end
+
 circulation = VORTEXPARAMETERS.Circulation;
 vortexRadius = VORTEXPARAMETERS.VortexRadius;
 XC = VORTEXPARAMETERS.XC;

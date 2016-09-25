@@ -35,12 +35,11 @@ addpath(image_gen_repo_src);
 addpath(fullfile(image_gen_repo_src, 'jobfiles'));
 
 % Target displacements
-tx_pix = 15;
+tx_pix = 8;
 ty_pix = 0;
 
 % Set base name
 set_base_name = sprintf('piv_test_running_ensemble_%d_ppf_test', tx_pix);
-
 
 % Physical stuff for diffusion
 % Constants for diffusion 
@@ -52,7 +51,7 @@ dx_target_pix = sqrt(tx_pix^2 + ty_pix^2);
 
 % Flow rates to test in uL/min
 % flow_rate_vect = [0.50, 5.0, 50.0, 10.0];
-flow_rate_vect = 50;
+flow_rate_vect = 5.0;
 
 % Load the image generation job list
 image_gen_job_list = MonteCarloImageGenerationJobFile_micro();
@@ -77,7 +76,7 @@ start_set = 1;
 end_set = 1;
 
 % Images per set
-images_per_set = 20;
+images_per_set = 2000;
 
 % Images to analyze
 start_image = 1;

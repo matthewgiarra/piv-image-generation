@@ -1,27 +1,27 @@
   function JOBLIST = MonteCarloImageGenerationJobFile_micro()
 
 % Region dimensions
-region_width_pixels  = 128;
-region_height_pixels  = 128;
+region_width_pixels  = 64;
+region_height_pixels  = 64;
 
 % Translations in pixels
 % tx_pix = 7.5;
-tx_pix = 0;
+tx_pix = 15;
 ty_pix = 0;
 
 % Objective magnification
-objective_magnification = 60;
+objective_magnification = 20;
 
 % Pixel size in microns
 pixel_size_microns = 10;
 
 % Particle diameter in microns
-dp_microns = 0.1;
+dp_microns = 0.05;
 
 % Particle concentration (volume fraction)
-particle_volume_fraction = 5E-5;
-
-DefaultJob.JobOptions.ParallelProcessing = 1;
+particle_volume_fraction = 1E-6;
+ 
+DefaultJob.JobOptions.ParallelProcessing = 0;
 DefaultJob.JobOptions.NumberOfDigits = 6;
 DefaultJob.JobOptions.ReSeed = 1;
 
@@ -35,7 +35,7 @@ DefaultJob.Parameters.Image.Height = region_height_pixels;
 DefaultJob.Parameters.Image.Width = region_width_pixels;
 DefaultJob.Parameters.Sets.Start = 1;
 DefaultJob.Parameters.Sets.End = 1;
-DefaultJob.Parameters.Sets.ImagesPerSet = 40;
+DefaultJob.Parameters.Sets.ImagesPerSet = 1;
 
 % Rigid-body displacements (pixels)
 DefaultJob.Parameters.Translation.X =  tx_pix * [1, 1];
@@ -89,9 +89,10 @@ DefaultJob.Parameters.Experiment.ParticleConcentration = ...
 
 % Constants for diffusion 
 channel_width_microns = 5E3;
-channel_depth_microns = 100;
-flow_rate_ul_min = 5.0;
-T_kelvin = 300;
+channel_depth_microns = 10;
+flow_rate_ul_min = 0.5;
+% T_kelvin = 10E3;
+T_kelvin = 0;
 viscosity_pas = 1.12E-3;
 dx_target_pix = sqrt(tx_pix^2 + ty_pix^2);
 
@@ -110,82 +111,24 @@ DefaultJob.Parameters.Experiment.Viscosity = viscosity_pas;
 
 % Case 1
 SegmentItem = DefaultJob;
-flow_rate_ul_min = 5.0;
-% Particle diffusion
-particle_diffusion_std_dev_pix = calculate_particle_diffusion(...
-    channel_width_microns, channel_depth_microns, ...
-    flow_rate_ul_min, objective_magnification, ...
-    pixel_size_microns, T_kelvin, dp_microns, viscosity_pas, dx_target_pix);
 SegmentItem.SetType = 'mc';
-SegmentItem.CaseName = ...
-    sprintf('piv_test_running_ensmeble_q_%0.1f_ul_min', flow_rate_ul_min);
-% SegmentItem.CaseName = 'big_example_images';
-SegmentItem.Parameters.Image.Height = 128;
-SegmentItem.Parameters.Image.Width  = 128;
+SegmentItem.Parameters.Image.Height = 1024;
+SegmentItem.Parameters.Image.Width  = 1024;
 SegmentItem.Parameters.Noise.Mean = 0 * [0.1, 0.1];
 SegmentItem.Parameters.Noise.Std = 0.03 * [1, 1];
-SegmentItem.Parameters.Experiment.DiffusionStdDev = ...
-    particle_diffusion_std_dev_pix * [1, 1];
 
-
-%%%%%%%%%%%%
-
-% % Update the flow rate
-% flow_rate_ul_min = 0.5;
-% % SegmentItem.CaseName = 'piv_test_running_ensmeble_q_0.50_ul_min';
-% SegmentItem.CaseName = 'piv_shakedown_running_ensmeble_q_0.50_ul_min';
-% SegmentItem.Parameters.Experiment.FlowRate = flow_rate_ul_min;
-% 
-% % Particle diffusion
-% particle_diffusion_std_dev_pix = calculate_particle_diffusion(...
-%     channel_width_microns, channel_depth_microns, ...
-%     flow_rate_ul_min, objective_magnification, ...
-%     pixel_size_microns, T_kelvin, dp_microns, viscosity_pas, dx_target_pix);
-% 
-% % Update diffusion
-% SegmentItem.Parameters.Experiment.DiffusionStdDev = ...
-%     particle_diffusion_std_dev_pix * [1, 1];
-% 
-% % Append the job
-% JOBLIST(1) = SegmentItem;
-
-%%%%%%%%%%%
-
-% % 
-% % %%%%%%%%%%%
-% % 
-% % Update the flow rate
-% flow_rate_ul_min = 5.0;
-% SegmentItem.CaseName = 'piv_test_running_ensmeble_q_5.0_ul_min'; 
-% SegmentItem.Parameters.Experiment.FlowRate = flow_rate_ul_min;
-%  % Particle diffusion
-%  particle_diffusion_std_dev_pix = calculate_particle_diffusion(...
-%      channel_width_microns, channel_depth_microns, ...
-%      flow_rate_ul_min, objective_magnification, ...
-%      pixel_size_microns, T_kelvin, dp_microns, viscosity_pas, dx_target_pix);
-%  
-%  % Update diffusion
-%  SegmentItem.Parameters.Experiment.DiffusionStdDev = ...
-%      particle_diffusion_std_dev_pix * [1, 1];
-%  
-%  % Append the job
-%  JOBLIST(end + 1) = SegmentItem;
-% % 
-% % %%%%%%%%%%%
-% % 
-% % %%%%%%%%%%%%
-% % 
- % Update the flow rate
- flow_rate_ul_min = 0.5;
+% Update the flow rate
+ flow_rate_ul_min = 2.0;
  SegmentItem.Parameters.Experiment.FlowRate = flow_rate_ul_min;
- SegmentItem.CaseName = 'piv_test_running_ensmeble_q_0.5_ul_min';
+ SegmentItem.CaseName = sprintf('piv_test_running_ensmeble_q_%0.1f_ul_min', flow_rate_ul_min);
 %  SegmentItem.CaseName = 'shear_test_01';
 
  % Particle diffusion
- particle_diffusion_std_dev_pix = calculate_particle_diffusion(...
+ [particle_diffusion_std_dev_pix, fps] = calculate_particle_diffusion(...
      channel_width_microns, channel_depth_microns, ...
      flow_rate_ul_min, objective_magnification, ...
      pixel_size_microns, T_kelvin, dp_microns, viscosity_pas, dx_target_pix);
+ 
  
 %  % Update diffusion
  SegmentItem.Parameters.Experiment.DiffusionStdDev = ...
