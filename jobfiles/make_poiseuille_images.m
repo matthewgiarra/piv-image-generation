@@ -16,7 +16,6 @@ start_image = 1;
 end_image = 1;
 skip_image = 1;
 
-
 % % Image stuff
 % Number of images
 num_pairs = 10;
