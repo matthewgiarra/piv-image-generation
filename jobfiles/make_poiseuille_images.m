@@ -1,28 +1,24 @@
-addpaths('..');
+function make_poiseuille_images(dx_rand_list, num_pairs, img_repo)
 % clear;
 
-fSize_axes = 12;
-fSize_title = 16;
-
 % Image directory
-img_repo = '~/Desktop/piv_test_images/synthetic';
+% img_repo = '~/Desktop/piv_test_images/synthetic';
+
 
 % Give this case a name
 case_name = 'poiseuille';
 
-num_digits = 4;
+% Image extension
 image_ext = '.tiff';
-start_image = 1;
-end_image = 1;
-skip_image = 1;
+
 
 % % Image stuff
 % Number of images
-num_pairs = 10;
+% num_pairs = 10;
 
 % Image dimensions
-image_width = 1280;
-image_height = 1024;
+image_width = 2048;
+image_height = 2048;
 
 % Particle positions buffer
 x_buffer = -100;
@@ -63,9 +59,9 @@ dx_mean = 10 * 2/3;
 dy_mean = 0;
 dz_mean = 0;
 
-% list of random displacement standard deviations.
-dx_rand_list = [0.1, 1, 3, 6];
-dx_rand_list = 0.1;
+% % list of random displacement standard deviations.
+% dx_rand_list = [0.1, 1, 3, 6];
+% dx_rand_list = 0.1;
 
 % Number of diffusion cases.
 num_diffusion_cases = length(dx_rand_list);
@@ -230,7 +226,7 @@ save(job_file_path, 'JobFile');
 
 end
 
-
+end
 
     
 
