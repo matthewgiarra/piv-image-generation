@@ -128,7 +128,7 @@ if ~exist(job_file_dir, 'dir')
 end;
 
 % Loop over images
-for k = 1 : num_pairs
+parfor k = 1 : num_pairs
     
     % Inform the user
     fprintf(1, 'On image %d of %d\n', k, num_pairs);
