@@ -1,8 +1,8 @@
   function JOBLIST = MonteCarloImageGenerationJobFile_micro()
 
 % Region dimensions
-region_width_pixels  = 64;
-region_height_pixels  = 64;
+region_width_pixels  = 1024;
+region_height_pixels  = 1024;
 
 % Translations in pixels
 % tx_pix = 7.5;

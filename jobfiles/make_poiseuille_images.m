@@ -4,7 +4,10 @@ function make_poiseuille_images(dx_rand_list, num_pairs, image_size, img_repo)
 case_name = 'poiseuille';
 
 % Image extension
-image_ext = '.tiff';
+image_ext = '.tif';
+
+% Number of digits
+num_digits = 5;
 
 % Image size
 image_height = image_size(1);
@@ -21,8 +24,11 @@ y_min = 1 + y_buffer;
 y_max = image_height - y_buffer;
 
 % Image noise
-noise_mean_fract = 15E-2;
-noise_std_fract  = 15E-2;
+% noise_mean_fract = 15E-2;
+% noise_std_fract  = 15E-2;
+
+noise_mean_fract = 1E-2;
+noise_std_fract  = 1E-2;
 
 % Particle stuff
 dp_mean = 3;
@@ -46,7 +52,7 @@ z_min = -1 * sheet_thickness_pixels / 2;
 z_max =      sheet_thickness_pixels / 2;
 
 % Mean displacements
-dx_mean = 10 * 2/3;
+dx_mean = 15 * 2/3;
 dy_mean = 0;
 dz_mean = 0;
 
@@ -78,9 +84,11 @@ JobFile.Parameters.Particles.Diameter.Std = dp_std;
 JobFile.Parameters.Image.Height = image_height;
 JobFile.Parameters.Image.Width = image_width;
 
+% number formatting string
+number_format_str = sprintf('%%0%dd', num_digits);
+
 % Loop over all the different cases.
 for n = 1 : num_diffusion_cases
-
 
     % % Do some werkidy work
     % Make lists of images
@@ -119,14 +127,18 @@ for n = 1 : num_diffusion_cases
     end;
 
     % Loop over images
-    parfor k = 1 : num_pairs
+    for k = 1 : num_pairs
 
         % Inform the user
         fprintf(1, 'On image %d of %d\n', k, num_pairs);
+        
+        % Digit string
+        digit_string_01 = sprintf(sprintf('%s', number_format_str), image_nums_01(k));
+        digit_string_02 = sprintf(sprintf('%s', number_format_str), image_nums_02(k));
 
         % Image save name
-        image_name_01 = sprintf('%s_%06d.%s', case_name_current, image_nums_01(k), image_ext);
-        image_name_02 = sprintf('%s_%06d.%s', case_name_current, image_nums_02(k), image_ext);
+        image_name_01 = sprintf('%s_%s.%s', case_name_current, digit_string_01, image_ext);
+        image_name_02 = sprintf('%s_%s.%s', case_name_current, digit_string_02, image_ext);
 
         % Image save path
         image_path_01 = fullfile(image_dir, image_name_01);
