@@ -127,7 +127,7 @@ for n = 1 : num_diffusion_cases
     end;
 
     % Loop over images
-    for k = 1 : num_pairs
+    parfor k = 1 : num_pairs
 
         % Inform the user
         fprintf(1, 'On image %d of %d\n', k, num_pairs);
