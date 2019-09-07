@@ -1,35 +1,32 @@
-function CAMERA_PARAMETERS = default_camera_parameters();
+function CAMERA_PARAMETERS = default_camera_parameters()
 
 	% Number of cameras
-	n_cameras = 1;
-
-	% Distance from camera arrangement centroid to the target plane.
-	L = 1;
-
-	% Camera angles
-	rx = 0 * ones(n_cameras, 1);
-	ry = 0 * ones(n_cameras, 1);
-	rz = 0 * ones(n_cameras, 1);
-
-	% Camera positions
-% 	tx = 0.1 * [0, -1, 1];
-% 	ty = 0.1 * [1, -1, -1];
-% 	tz = L * ones(n_cameras, 1);
-
-	tx = 0.0;
-	ty = 0.0;
-	tz = L   * ones(n_cameras, 1);
-	
+	n_cameras = 4;
+    
+    % Just some scaling factors
+    sr = 0.5;
+    st = 0.6;
+    
+    % Camera positions
+    tx = st * [-1, 1, -1, 1];
+    ty = st * [1, 1, -1, -1];
+    tz = -1 * ones(n_cameras, 1);
+    
+    % Camera angles
+    rx = sr * [-1, -1, 1, 1];
+    ry = sr * [-1, 1, -1, 1];
+	rz = zeros(n_cameras, 1);
+    	
 	% Camera focal lengths
 	f = 0.028 * ones(n_cameras, 1);
 
 	% Numbers of pixels
-	image_rows = 128 * ones(n_cameras, 1);
-	image_cols = 128 * ones(n_cameras, 1);
+	image_rows = 1024 * ones(n_cameras, 1);
+	image_cols = 1024 * ones(n_cameras, 1);
 
 	% Pixel sizes (world units)
 	pixel_height_world = 1.7E-5 * ones(n_cameras, 1);
-	pixel_width_world = 1.7E-5 * ones(n_cameras, 1);
+	pixel_width_world  = 1.7E-5 * ones(n_cameras, 1);
 	
 	% Sensor sizes (world units, like mm)
 	sensor_width_world  = image_cols .* pixel_width_world;
@@ -40,15 +37,14 @@ function CAMERA_PARAMETERS = default_camera_parameters();
 	 length(tx), length(ty), length(tz), length(f)]);
 	 
 	 % Save arrangement parameters
-	 CAMERA_PARAMETERS.NumberOfCameras = n_cameras;
-	 CAMERA_PARAMETERS.TargetPlaneDistance = L; 
+	 CAMERA_PARAMETERS.NumberOfCameras = n_cameras; 
  
 	 % Loop over cameras
 	for k = 1 : num_cameras 
 		% Populate  Camera parameters
 		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.X = rx(k);
 		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.Y = ry(k);
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.Z = ry(k);
+		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.Z = rz(k);
 
 		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Translation.X = tx(k);
 		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Translation.Y = ty(k);

@@ -6,9 +6,6 @@ function CAMERA_PARAMETERS = calculate_camera_parameters(CAMERA_PARAMETERS)
 	% Count the number of cameras
 	num_cameras = CAMERA_PARAMETERS.NumberOfCameras;
 	
-	% Target distance
-	target_distance = CAMERA_PARAMETERS.TargetPlaneDistance;
-
 	% Loop over all the cameras
 	for k = 1 : num_cameras
 	
@@ -41,7 +38,7 @@ function CAMERA_PARAMETERS = calculate_camera_parameters(CAMERA_PARAMETERS)
 			
 		% Calculate camera matrix (pixel coordinates)
 		Cameras(k).Camera_Matrix = ...
-			calculate_camera_matrix_pixel(rx, ry, rz, tx, ty, tz, focal_length, target_distance, sensor_size_vect, pixel_size_vect);	
+			calculate_camera_matrix_pixel(rx, ry, rz, tx, ty, tz, focal_length, sensor_size_vect, pixel_size_vect);	
 		
 	end
 	
