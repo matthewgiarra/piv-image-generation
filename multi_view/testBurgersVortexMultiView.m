@@ -75,7 +75,7 @@ for t = 1 : length(tSpan)
         Camera = Cameras(k);
         
         % Calculate image coordinates
-        [x_cam, y_cam] = pinhole_camera_coordinate_transform(x, y, z, getCameraMatrix(Camera));
+        [x_cam, y_cam] = pinholeTransform(x, y, z, getCameraMatrix(Camera));
         
         % Render the image and add noise
         particle_image = (...
