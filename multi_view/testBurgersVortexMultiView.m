@@ -1,7 +1,10 @@
-function test_burgers_vortex_multi_view(Cameras)
+function testBurgersVortexMultiView(Cameras)
 
 % Seed the number generator
 rng(1);
+
+% Output directory 
+out_root = 'images';
 
 % Number of particles
 n_particles = 5E4;
@@ -54,6 +57,7 @@ zo = zl + (zu - zl) * rand(n_particles, 1);
 for t = 1 : length(tSpan)
 
     % [x,y,z] positions at this time point
+    % in world coordinates (lab frame, meters)
     x = X(t, :);
     y = Y(t, :);
     z = Z(t, :);
@@ -67,31 +71,20 @@ for t = 1 : length(tSpan)
     
     for k = 1 : num_cameras
 
-        % Grab the current camera matrix
-        camera_matrix = Cameras(k).CameraMatrix;
-
+        % Ger the current camera
+        Camera = Cameras(k);
+        
         % Calculate image coordinates
-        [x_cam, y_cam] = pinhole_camera_coordinate_transform(x, y, z, camera_matrix);
-        n_pixels_rows = Cameras(k).Intrinsic.Pixel.Number.Rows;
-        n_pixels_cols = Cameras(k).Intrinsic.Pixel.Number.Columns;
+        [x_cam, y_cam] = pinhole_camera_coordinate_transform(x, y, z, getCameraMatrix(Camera));
         
-        % Sensor gain
-        sensorGain = Cameras(k).Intrinsic.Sensor.Gain;
-        sensorNoiseStd = Cameras(k).Intrinsic.Sensor.NoiseStd;
-        
-        % New noise matrix
-        noiseMat = abs(sensorNoiseStd * randn(n_pixels_rows, n_pixels_cols));
-
-        particle_image_raw = (...
-        generateParticleImage(n_pixels_rows, n_pixels_cols, ...
-        x_cam(:), y_cam(:), ...
-        particleDiameters, particleMaxIntensities));
-  
-        % Add the noise
-        particle_image_noisy = particle_image_raw + noiseMat;
+        % Render the image and add noise
+        particle_image = (...
+            generateParticleImage(Camera.PixelRows, Camera.PixelColumns, ...
+              x_cam, y_cam, particleDiameters, particleMaxIntensities)) ...
+              + getSensorNoise(Camera);
         
         % Apply sensor gain
-        particle_image_uint16 = uint16(sensorGain * double(intmax('uint16')) * particle_image_noisy);
+        particle_image_uint16 = uint16(Camera.SensorGain * double(intmax('uint16')) * particle_image);
         
         % Make a plot
         subtightplot(2, 2, k, [0.1, 0.1]);
@@ -103,16 +96,13 @@ for t = 1 : length(tSpan)
         caxis([0, intmax('uint16')]);
         set(gcf, 'color', 'white');
         
-        % Make directories if they don't exist
-        outDir = Cameras(k).Files.OutDir;
-        if(~exist(outDir, 'dir'))
-            mkdir(outDir);
-        end
-        
         % Output path
-        outBase = Cameras(k).Files.OutBaseName;
-        outPath = fullfile(outDir, sprintf('%s%05d.tiff', outBase, t));
-        imwrite(particle_image_uint16, outPath, 'compression', 'none');
+        out_dir = fullfile(out_root, sprintf('Cam%d', k));
+        if(~exist(out_dir, 'dir'))
+            mkdir(out_dir);
+        end
+        out_path = fullfile(out_dir, sprintf('cam%d_frame_%05d.tiff', k, t));
+        imwrite(particle_image_uint16, out_path, 'compression', 'none');
         
     end
 
