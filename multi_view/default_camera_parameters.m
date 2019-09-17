@@ -1,21 +1,33 @@
-function CAMERA_PARAMETERS = default_camera_parameters()
+function CAMERAS = default_camera_parameters()
 
 	% Number of cameras
 	n_cameras = 4;
     
     % Just some scaling factors
+%     st = 0.6;
+%     sr = 0.5;
+    
+    st = 6.0;
     sr = 0.5;
-    st = 0.6;
+    
     
     % Camera positions
     tx = st * [-1, 1, -1, 1];
     ty = st * [1, 1, -1, -1];
-    tz = -1 * ones(n_cameras, 1);
+%     tz = -1 * ones(n_cameras, 1);
+    tz = -10 * ones(n_cameras, 1);
     
     % Camera angles
     rx = sr * [-1, -1, 1, 1];
     ry = sr * [-1, 1, -1, 1];
 	rz = zeros(n_cameras, 1);
+    
+    % gain = 1 means that a floating point
+    % pixel value of 1 corresponds to a saturated pixel.
+    % gain = 0 will make the whole image black.
+    % You have to figure out a good value here by trial and error.
+    defaultSensorGain = 0.6;
+    defaultSensorNoiseStd = 0.05;
     	
 	% Camera focal lengths
 	f = 0.028 * ones(n_cameras, 1);
@@ -25,41 +37,46 @@ function CAMERA_PARAMETERS = default_camera_parameters()
 	image_cols = 1024 * ones(n_cameras, 1);
 
 	% Pixel sizes (world units)
+    % These values are for a Photron camera, but I forget which one.
 	pixel_height_world = 1.7E-5 * ones(n_cameras, 1);
 	pixel_width_world  = 1.7E-5 * ones(n_cameras, 1);
 	
-	% Sensor sizes (world units, like mm)
-	sensor_width_world  = image_cols .* pixel_width_world;
-	sensor_height_world = image_rows .* pixel_height_world;
-
-	% Error check the number of cameras.
+    % Sensor gain
+    sensorGain = defaultSensorGain * ones(n_cameras, 1);
+    sensorNoiseStd = defaultSensorNoiseStd * ones(n_cameras, 1);
+    
+   	% Error check the number of cameras.
 	num_cameras = min([n_cameras, length(rx), length(ry), length(rz),...
 	 length(tx), length(ty), length(tz), length(f)]);
-	 
-	 % Save arrangement parameters
-	 CAMERA_PARAMETERS.NumberOfCameras = n_cameras; 
- 
+	      
+     outBaseDir = 'images';
+     outBaseName = 'frame_';
+      
 	 % Loop over cameras
 	for k = 1 : num_cameras 
 		% Populate  Camera parameters
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.X = rx(k);
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.Y = ry(k);
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Rotation.Z = rz(k);
+		CAMERAS(k).Extrinsic.Rotation.X = rx(k);
+		CAMERAS(k).Extrinsic.Rotation.Y = ry(k);
+		CAMERAS(k).Extrinsic.Rotation.Z = rz(k);
 
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Translation.X = tx(k);
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Translation.Y = ty(k);
-		CAMERA_PARAMETERS.Cameras(k).Extrinsic.Translation.Z = tz(k);
+		CAMERAS(k).Extrinsic.Translation.X = tx(k);
+		CAMERAS(k).Extrinsic.Translation.Y = ty(k);
+		CAMERAS(k).Extrinsic.Translation.Z = tz(k);
 
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.FocalLength = f(k);
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.Sensor.Width = sensor_width_world(k);
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.Sensor.Height = sensor_height_world(k);
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.Pixel.Height = pixel_height_world(k);
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.Pixel.Width = pixel_width_world(k);
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.Pixel.Number.Rows = image_rows(k);
-		CAMERA_PARAMETERS.Cameras(k).Intrinsic.Pixel.Number.Columns = image_cols(k);
+		CAMERAS(k).Intrinsic.FocalLength = f(k);
+		CAMERAS(k).Intrinsic.Pixel.Height = pixel_height_world(k);
+		CAMERAS(k).Intrinsic.Pixel.Width = pixel_width_world(k);
+		CAMERAS(k).Intrinsic.Pixel.Number.Rows = image_rows(k);
+		CAMERAS(k).Intrinsic.Pixel.Number.Columns = image_cols(k);
+        CAMERAS(k).Intrinsic.Sensor.NoiseStd = sensorNoiseStd(k);
+        CAMERAS(k).Intrinsic.Sensor.Gain = sensorGain(k);
+        CAMERAS(k).CameraMatrix = calculate_camera_matrix(CAMERAS(k));
+        
+        % Camera save locations
+        CAMERAS(k).Files.OutDir = fullfile(outBaseDir, sprintf('cam%02d', k));
+        CAMERAS(k).Files.OutBaseName = outBaseName;
+        
 	end
 
-	% Update camera parameters with camera matrices.
-	CAMERA_PARAMETERS = calculate_camera_parameters(CAMERA_PARAMETERS);
 
 end
