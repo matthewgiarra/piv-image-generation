@@ -10,7 +10,7 @@ out_root = 'images';
 n_particles = 5E4;
 
 % Particle diameter parameters
-particle_diameter_mean = sqrt(8);
+particle_diameter_mean = 2 * sqrt(8);
 particle_diameter_std = sqrt(8) * 0.2;
 
 % Create a normal distribution of particle diameters
