@@ -2,62 +2,23 @@ function calTargetMultiView()
 
     % Get the cameras
     Cameras = defaultCameraArrangement();
-
-    % Seed the number generator
-    rng(1);
-
-    % Number of particles
-    particles_per_dot = 5e2;
     
-    % Dot spacing
-    dL = 0.02;
-    
-    % Dot diameter in meters
-    dotD = 0.005;
- 
-    % Dot rows and cols
-    dotRows = 8;
-    dotCols = 8;
-    nDots = dotRows * dotCols;
-    
-    % Width of target (center of first dot to center of last dot)
-    targetWidth =  (dotCols - 1) * dL;
-    targetHeight = (dotRows - 1) * dL;
-    
-    % Dot centers
-    xv = linspace(-targetWidth/2, targetWidth/2, dotCols);
-    yv = linspace(-targetHeight/2, targetHeight/2, dotRows);
-    zv = 0;
-    
-    % Make a grid of dot centers
-    [xdots,ydots,zdots] = meshgrid(xv, yv, zv);
-
+    % Get particle coordinates to render a calibration target
+    [x,y,z] = calibrationTarget();
+  
     % Create a normal distribution of particle diameters
-    particleDiameters = sqrt(8) * ones(particles_per_dot, nDots);
+    particleDiameters = sqrt(8) * ones(numel(x), 1);
     
     % Calculate particle max intensities from beam profile
-    particleMaxIntensities = ones(particles_per_dot, nDots);
-    
-    % Random angle from dot center
-    th = 2 * pi * rand(particles_per_dot, nDots);
-    r = dotD/2  * rand(particles_per_dot, nDots);
-    zraw = zeros(particles_per_dot, nDots);
-    [xraw, yraw, zraw] = pol2cart(th, r, zraw);
-    
-    x = xraw + (xdots(:))';
-    y = yraw + (ydots(:))';
-    z = zraw + (zdots(:))';
-    
+    particleMaxIntensities = ones(numel(x), 1);
+  
     for k = 1 : length(Cameras)
 
         % Ger the current camera
         Camera = Cameras(k);
-        
-        % Camera matrix
-        M = getCameraMatrix(Camera);
-        
+                
         % Calculate image coordinates
-        [x_cam, y_cam] = pinholeTransform(x(:), y(:), z(:), M);
+        [x_cam, y_cam] = pinholeTransform(x(:), y(:), z(:), getCameraMatrix(Camera));
         
         % Render the image and add noise
         particle_image = (...
@@ -65,7 +26,7 @@ function calTargetMultiView()
               x_cam, y_cam, particleDiameters, particleMaxIntensities)) ...
               + getSensorNoise(Camera);
 
-        % Apply sensor gain
+        % Apply sensor gain and convert to uint16
         particle_image_uint16 = uint16(Camera.SensorGain * double(intmax('uint16')) * particle_image);
 
         % Make a plot
@@ -79,7 +40,6 @@ function calTargetMultiView()
         caxis([0, intmax('uint16')]);
         set(gca, 'ydir', 'normal');
         set(gcf, 'color', 'white');
-        
        
     end
 
