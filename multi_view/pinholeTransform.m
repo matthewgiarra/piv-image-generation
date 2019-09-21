@@ -1,4 +1,4 @@
-function [x_cam, y_cam] = pinhole_camera_coordinate_transform(x_world, y_world, z_world, camera_matrix)
+function [x_cam, y_cam] = pinholeTransform(x_world, y_world, z_world, camera_matrix)
 % INPUTS
 %	x_world = x location of object in world coordinates
 %	y_world = '';

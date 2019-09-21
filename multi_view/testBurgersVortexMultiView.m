@@ -1,32 +1,39 @@
-function testBurgersVortexMultiView(Cameras)
+function testBurgersVortexMultiView()
 
 % Seed the number generator
 rng(1);
+
+% Cameras
+Cameras = defaultCameraArrangement();
 
 % Output directory 
 out_root = 'images';
 
 % Number of particles
-n_particles = 5E4;
+% n_particles = 10E4;
+particle_concentration = 2.5E5;
 
 % Particle diameter parameters
-particle_diameter_mean = 2 * sqrt(8);
-particle_diameter_std = sqrt(8) * 0.2;
+particle_diameter_mean = 1.5*sqrt(8);
+particle_diameter_std  = 0.1 * particle_diameter_mean;
+
+% World axis limits in which to generate particles
+x_world_limits = 1 * [-1, 1];
+y_world_limits = 1 * [-1, 1];
+z_world_limits = 0.1 * [-1, 1];
+
+testVolume = diff(x_world_limits) * diff(y_world_limits) * diff(z_world_limits);
+n_particles = particle_concentration * testVolume;
 
 % Create a normal distribution of particle diameters
 particleDiameters = abs(particle_diameter_std * randn(n_particles, 1) ...
     + particle_diameter_mean);
 
-beam_plane_std_dev = 0.02; 
+beam_plane_std_dev = 0.05; 
 beam_plane_z = 0;
 
 % Time span
-tSpan = linspace(0, 1, 11);
-
-% World axis limits in which to generate particles
-x_world_limits = 20 * [-1, 1];
-y_world_limits = 20 * [-1, 1];
-z_world_limits = 0.1 * [-1, 1];
+tSpan = linspace(0, 0.05, 2);
 
 % Count the number of cameras
 % Long line because of input checking.
@@ -102,7 +109,7 @@ for t = 1 : length(tSpan)
             mkdir(out_dir);
         end
         out_path = fullfile(out_dir, sprintf('cam%d_frame_%05d.tiff', k, t));
-        imwrite(particle_image_uint16, out_path, 'compression', 'none');
+%         imwrite(particle_image_uint16, out_path, 'compression', 'none');
         
     end
 
