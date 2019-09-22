@@ -1,4 +1,4 @@
-function [x,y,z] = calibrationTarget(varargin)
+function [x,y,z, xc, yc, zc] = calibrationTarget(varargin)
 % Makes [x,y,z] coordinates that can be passed to generateParticleImage 
 % to create an image of a camera calibration target.
 
@@ -40,9 +40,9 @@ function [x,y,z] = calibrationTarget(varargin)
     [xdots, ydots, zdots] = meshgrid(xv, yv, zv);
     
     % Reshape the dot center arrays into vectors
-    xdotsVect = xdots(:);
-    ydotsVect = ydots(:);
-    zdotsVect = zdots(:);
+    xc = xdots(:);
+    yc = ydots(:);
+    zc = zdots(:);
     
     % Allocate array to hold all the [x,y,z] points
     x = zeros(particles_per_dot, nDots);
@@ -57,8 +57,9 @@ function [x,y,z] = calibrationTarget(varargin)
         r = dot_diameter_m/2  * rand(particles_per_dot, 1);
         zraw = zeros(particles_per_dot, 1);
         [xraw, yraw, ~] = pol2cart(th, r, zraw);
-        x(:, n) = xraw + xdotsVect(n);
-        y(:, n) = yraw + ydotsVect(n);
-        z(:, n) = zraw + zdotsVect(n);
+        x(:, n) = xraw + xc(n);
+        y(:, n) = yraw + yc(n);
+        z(:, n) = zraw + zc(n);
     end
+    
 end
