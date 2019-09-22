@@ -22,7 +22,9 @@ addParameter(p, 'particleDiameterMean', 1.5*sqrt(8), @isnumeric);
 addParameter(p, 'particleDiameterStdDev', 0.15 * sqrt(8), @isnumeric);
 addParameter(p, 'beamStdDev', 0.05, @isnumeric);
 addParameter(p, 'BeamPlaneZ', 0, @isnumeric);
+addParameter(p, 'velocityFunctionParams', [], @isstruct);
 addParameter(p, 'plot', false, @islogical);
+
 
 % Parse the arguments
 parse(p, varargin{:});
@@ -41,8 +43,9 @@ tSpan = p.Results.tspan;
 particle_diameter_mean = p.Results.particleDiameterMean;
 particle_diameter_std = p.Results.particleDiameterStdDev;
 beam_plane_std_dev = p.Results.beamStdDev;
-makePlots = p.Results.plot;
 beam_plane_z = p.Results.BeamPlaneZ;
+velFnParams = p.Results.velocityFunctionParams;
+makePlots = p.Results.plot;
 
 % Format string
 fmtStr = sprintf('%%0%dd', nZeros);
@@ -61,7 +64,7 @@ yo = yrange(1) + (yrange(2) - yrange(1)) * rand(n_particles, 1);
 zo = zrange(1) + (zrange(2) - zrange(1)) * rand(n_particles, 1);
 
 % Calculate the particle trajectories
-[X, Y, Z] = velocityFunction(xo, yo, zo, tSpan);
+[X, Y, Z] = velocityFunction(xo, yo, zo, tSpan, velFnParams);
 
 % Count the number of cameras
 num_cameras = length(Cameras);
@@ -118,7 +121,10 @@ for t = 1 : length(tSpan)
             mkdir(out_dir);
         end
         
+        % Where to save the image
         out_path = fullfile(out_dir, sprintf(outNameFmt, t));
+        
+        % Save the image
         imwrite(particle_image_uint16, out_path);
         
     end
