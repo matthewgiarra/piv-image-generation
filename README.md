@@ -3,7 +3,7 @@ These are matlab codes that generate artificial images for evaluating particle i
 
 This documentation requires some cleanup, but I no longer have MATLAB to run the code myself. If anyone has a solution or wants to buy me a license, I'd be happy to do it. I have not tried running it in Octave.
 
-![png_600x600](https://github.com/user-attachments/assets/ba5734a1-34ee-49b4-aa6d-a26bf5f721e9)
+![png_600x600](https://github.com/user-attachments/assets/bb587b1c-a9cb-4c03-8488-60fe3d1e2139)
 
 # Overview
 `piv-image-generation` is a library of Matlab codes used to generate synthetic photographs for testing planar particle image velocimetry codes (PIV). Particle positions are generated pseudo-randomly, and then advected according to known displacement fields (for full-field images) or coordinate transformations (for Monte–Carlo analysis). The code also saves additional Mat files that contain the ground-truth solutions describing the particle motions, vorticity, etc. These solution files are the basis for assessing the performance of PIV codes.  Particle images are rendered using the algorithm of Olsen and Adrian [1], and the specific details of the implementation can be found in Brady et al. [2]. 
